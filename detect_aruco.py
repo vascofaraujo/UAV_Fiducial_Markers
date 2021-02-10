@@ -44,7 +44,7 @@ R_Flip[1,1] = -1.0
 R_Flip[2,2] = -1.0
 
 marker_size = np.float32(9) #cm
-calib_path = 'aruco/'
+calib_path = 'markers/'
 camera_matrix = np.loadtxt(calib_path+'Camera_Matrix.txt', delimiter =',')
 camera_distortion = np.loadtxt(calib_path+'Camera_Distortion.txt', delimiter =',')
 

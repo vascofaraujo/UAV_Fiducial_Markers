@@ -7,18 +7,30 @@ from operator import itemgetter, attrgetter
 #function that calculates the sum of angles of a 4 line object
 def quad_sum(cnt):
     sum_angles = 0
-    x1 = cnt[0][0]
-    x2 = cnt[1][0]
-    x3 = cnt[2][0]
-    x4 = cnt[3][0]
-    y1 = cnt[0][1]
-    y2 = cnt[1][1]
-    y3 = cnt[2][1]
-    y4 = cnt[3][1]
 
-    angle = np.rad2deg(np.arctan2(cnt[1][1]-cnt[0][1], cnt[1][0]-cnt[0][0]))
+    p1 = np.array([cnt[0][0], cnt[0][1]])
+    p2 = np.array([cnt[1][0], cnt[1][1]])
+    p3 = np.array([cnt[2][0], cnt[2][1]])
+    p4 = np.array([cnt[3][0], cnt[3][1]])
 
+    p12 = p1-p2
+    p23 = p2-p3
+    p34 = p3-p4
+    p41 = p4-p1
 
+    cosine_angle1 = np.dot(p12, p23) / (np.linalg.norm(p12) * np.linalg.norm(p23))
+    angle1 = np.degrees(np.arccos(cosine_angle1))
+
+    cosine_angle2 = np.dot(p23, p34) / (np.linalg.norm(p23) * np.linalg.norm(p34))
+    angle2 = np.degrees(np.arccos(cosine_angle2))
+
+    cosine_angle3 = np.dot(p34, p41) / (np.linalg.norm(p34) * np.linalg.norm(p41))
+    angle3 = np.degrees(np.arccos(cosine_angle3))
+
+    cosine_angle4 = np.dot(p41, p12) / (np.linalg.norm(p41) * np.linalg.norm(p12))
+    angle4 = np.degrees(np.arccos(cosine_angle4))
+
+    sum_angles = angle1+angle2+angle3+angle4
     return sum_angles
 
 
@@ -162,7 +174,7 @@ while True:
         w = shapes[i][2]
         h = shapes[i][3]
 
-        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),1)
+        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
 
 
     cv.imshow("window", img)
