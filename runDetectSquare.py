@@ -88,19 +88,35 @@ def match_warped(squares):
         for cnt in contours:
             cnt_len = cv.arcLength(cnt, True)
             cnt = cv.approxPolyDP(cnt, 0.02*cnt_len, True)
+            
             if len(cnt) == 4 and cv.isContourConvex(cnt):
                     cnt = cnt.reshape(-1, 2)       
+
+                    sumAngles = quad_sum(cnt)
+                    if sumAngles != 360:
+                        continue
 
                     x,y,w,h = cv.boundingRect(cnt)   
 
                     if x<0.2*squares[i][5].shape[0] or y<0.2*squares[i][5].shape[1]:
                         continue
-                    draw = np.zeros((squares[i][5].shape[0], squares[i][5].shape[1], 3), dtype=np.uint8)
-                    cv.rectangle(draw, (x,y), (x+w,y+h), (0,255,0),2)
 
+
+                    draw = np.zeros((squares[i][5].shape[0], squares[i][5].shape[1], 3), dtype=np.uint8)
+                    cv.rectangle(squares[i][5], (x,y), (x+w,y+h), (0,255,0),1)
+
+                    patch = squares[i][5][x:x+w, y:y+h]
+                    cv.imshow("path",patch)
                     cv.imshow("desenh", draw)
                     cv.imshow("waq", squares[i][5])
-                    markers.append(squares[i])
+                    contoursT, hie = cv.findContours(patch, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+                    for cntT in contoursT:
+                        cntT_len = cv.arcLength(cntT, True)
+                        cntT = cv.approxPolyDP(cntT, 0.02*cntT_len, True)
+                        if len(cntT) == 3:# and cv.countourArea(cnt) > 200:
+                            markers.append(squares[i])
+
+                    
         k = k+1
     return markers
 def order_points(pts):
@@ -280,7 +296,7 @@ while True:
 
     #performs non maximum supression
     squares = non_max_supression(squares, 0.5)
-   # triangles = non_max_supression(triangles, 0.5)
+    #triangles = non_max_supression(triangles, 0.5)
 
     markers = match_warped(squares)
 
