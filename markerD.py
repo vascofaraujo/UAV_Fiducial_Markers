@@ -68,11 +68,9 @@ def match_templates(patches):
         try:
             match = cv.matchTemplate(patchNext, patch, cv.TM_CCOEFF_NORMED)
             if (len(match) != 0):
-                print("FIND")
                 findMatch = findMatch+1
             else:
                 findMatch = 0
-                print("NOT")
             if findMatch == 1:#it should be number of objects-1
                 cv.imshow("a", patch)
                 cv.imshow("b", patchNext)
@@ -159,8 +157,6 @@ def match_warped(squares, image):
                     
                     
                     cv.imshow("waq", squares[i][5])
-                    print("POINTS")
-                    print(cnt)
                     #cv.waitKey(0)
                     #cv.destroyWindow('desenh')
 
@@ -236,61 +232,79 @@ def four_point_transform(image, pts):
 	return warped
 
 #####################################################################
-
-#Começar a captura
-cap = cv.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
-cap.set(10, 100)
+img_markers = []
+name = "markers/Markers_Novos/"  #PUT NAME OF IMAGE HERE
+img_markers.append(cv.imread(name + "D1.jpeg"))
+img_markers.append(cv.imread(name + "D2.jpeg"))
+img_markers.append(cv.imread(name + "D3.jpeg"))
+img_markers.append(cv.imread(name + "D4.jpeg"))
+img_markers.append(cv.imread(name + "D5.jpeg"))
+found = []
 
 #parameters initialization
-sucess, img = cap.read()
 minPerimeterRate = 0.03
 maxPerimeterRate = 4
 minCornerDistanceRate = 0.05
-minPerimeterPixels = minPerimeterRate * np.maximum(img.shape[0], img.shape[1])
-maxPerimeterPixels = maxPerimeterRate * np.maximum(img.shape[0], img.shape[1])
+minPerimeterPixels = minPerimeterRate * np.maximum(img_markers[0].shape[0], img_markers[0].shape[1])
+maxPerimeterPixels = maxPerimeterRate * np.maximum(img_markers[0].shape[0], img_markers[0].shape[1])
 parameters = aruco.DetectorParameters_create() ##S
 minDistanceToBorder = parameters.minDistanceToBorder
-minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
+minDistSq = np.maximum(img_markers[0].shape[0], img_markers[0].shape[1]) * np.maximum(img_markers[0].shape[0], img_markers[0].shape[1])
+
+color = (0,255,0)
 
 
-while True:
-    success, img = cap.read()
-
-    """
-    #resize imagem
-    scale_percent = 50 # percent of original size
-    width = int(img.shape[1] * scale_percent / 100)
-    height = int(img.shape[0] * scale_percent / 100)
-    dim = (width, height)   
-    img = cv.resize(img, dim)
-    """
-
+for i in range(5): 
     #grayscale
+
+    img = img_markers[i]
+
+    img = cv.GaussianBlur(img, (5,5), 0)
+
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
 
     #canny
     canny = cv.Canny(gray, 255/3, 255)
 
-    #dillation
-    #kernel = np.ones((3,3),np.uint8)
-    #canny = cv.dilate(canny,kernel,iterations = 1)
+    circles = cv.HoughCircles(gray, method=cv.HOUGH_GRADIENT, dp=1, minDist=1, param1=100, param2=50, maxRadius=100)
+    if (circles is None):
+        break 
+    circles = np.int16(np.around(circles))
+    for pt in circles[0, :]:
+        x, y, R = pt[0], pt[1], pt[2]
+        x = round(x)
+        y = round(y)
+        R = round(R)
+        cv.circle(img, (x, y), R, (255, 0, 0), 5)
 
-    
-    #countours
     contours, hierarchy = cv.findContours(canny, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    
     # Draw contours
     drawing = np.zeros((canny.shape[0], canny.shape[1], 3), dtype=np.uint8)
     for i in range(len(contours)):
         color = (0, 255, 0)
         cv.drawContours(drawing, contours, i, color, 1, cv.LINE_8, hierarchy, 0)
-    # Show in a window
-    cv.imshow('Contours', drawing)
 
-    
-    
+    circles = []
+    for cnt in contours:
+        cnt_len = cv.arcLength(cnt, True)
+        cnt = cv.approxPolyDP(cnt, 0.02*cnt_len, True)
+        if len(cnt) > 10:
+            circles.append(cnt)
+
+    for k in range(len(circles)):
+        print("hellooo")
+        x,y,w,h = cv.boundingRect(circles[k])
+        drawing = cv.rectangle(drawing, (x,y), (x+w,y+h), (255,0,0), 2) 
+    #resize imagem
+    scale_percent = 40 # percent of original size
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)   
+    img = cv.resize(img, dim)
+    drawing = cv.resize(drawing, dim)
+    cv.imshow("desenho", drawing)
+    cv.imshow('Contours', img)
+    """
     squares = []
     triangles = []
     angle = 0
@@ -302,9 +316,8 @@ while True:
             approxCurve = cnt
             sum_angles = quad_sum(cnt)
             minCornerDistancePixels = len(cnt) * minCornerDistanceRate
-           
+            
             for j in range(0,4):
-                print(j, (j+1)%4)
                 d = (approxCurve[j][0] - approxCurve[(j + 1)%4][0]) * (approxCurve[j][0] - approxCurve[(j + 1)%4][0]) + (approxCurve[j][1] - approxCurve[(j + 1)%4][1]) * (approxCurve[j][1] - approxCurve[(j + 1)%4][1])
                 minDistSq = min(minDistSq, d)
 
@@ -323,7 +336,6 @@ while True:
                 warped =[]
                 for j in range(4):
                     candidate_corner.append([approxCurve[j][0], approxCurve[j][1]])
-                print("CANDIDATE CORN")
                 
                 candidate_corner = np.array(candidate_corner)
                 candidate_corner = order_points(candidate_corner)
@@ -335,22 +347,13 @@ while True:
                 a = (x,y,w,h, area, warped, contour_warped)
                 squares.append(a)
                 for k in range(len(contour_warped)):
-                    #contour_len_warped = cv.arcLength(contour_warped[k], True)
-                    #approx_Curve_warped = cv.approxPolyDP(contour_warped[k], (float)((contour_len_warped) * parameters.polygonalApproxAccuracyRate), True)
-                    #if len(approx_Curve_warped) == 3 and cv.isContourConvex(approx_Curve_warped):
+                    
                     cv.drawContours(drawing3, contour_warped, k, color, 1, cv.LINE_8)
 
-                cv.imshow("draw3", drawing3)
+                cv.imshow("draw3", warped)
 
-                #k = cv.waitKey(0)
-                #cv.destroyWindow('draw3')
-        """
-        if len(cnt) == 3:# and cv.countourArea(cnt) > 200:
-            xt,yt,wt,ht = cv.boundingRect(cnt)
-            areat = cv.contourArea(cnt)
-            b = (xt,yt,wt,ht, areat)
-            triangles.append(b)
-        """
+
+
 
     #sorts every square and triangle, from smaller to bigger
     squares = sorted(squares, key=itemgetter(4))
@@ -362,43 +365,16 @@ while True:
 
     markers = match_warped(squares, gray)
 
+    if len(markers) > 0:
+        found.append(1)    
+    else:
+        found.append(0)
     """
-    #join squares and triangles and orders them
-    shapes = []
-    shapes = squares #+ triangles
-    shapes = sorted(shapes, key=itemgetter(4))
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+
+np.savetxt('Marker_D.txt', found)
 
     
-    #now, to find the marker (triangle inside square inside square)
-    i = len(shapes)-1
-    patch = []
-    while(i >= 0):
-        patch.append(img[(shapes[i][1]):(shapes[i][1]+shapes[i][3]), (shapes[i][0]):(shapes[i][0]+shapes[i][2])])
-        i=i-1
-
-    res, idx = match_templates(patch)
-
-    if res == 1:#finds marker
-        x1 = shapes[i][0]
-        y1 = shapes[i][1]
-        w = shapes[i][2]
-        h = shapes[i][3]
-
-        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
-    """
-    for i in range(len(markers)):
-        x1 = markers[i][0]
-        y1 = markers[i][1]
-        w = markers[i][2]
-        h = markers[i][3]
-        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
-
-    cv.imshow("window", img)
-
-    
-
-
-    #Quebrar se 'q' for premido
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break
 

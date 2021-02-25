@@ -68,11 +68,9 @@ def match_templates(patches):
         try:
             match = cv.matchTemplate(patchNext, patch, cv.TM_CCOEFF_NORMED)
             if (len(match) != 0):
-                print("FIND")
                 findMatch = findMatch+1
             else:
                 findMatch = 0
-                print("NOT")
             if findMatch == 1:#it should be number of objects-1
                 cv.imshow("a", patch)
                 cv.imshow("b", patchNext)
@@ -159,11 +157,20 @@ def match_warped(squares, image):
                     
                     
                     cv.imshow("waq", squares[i][5])
-                    print("POINTS")
-                    print(cnt)
                     #cv.waitKey(0)
                     #cv.destroyWindow('desenh')
+                    #patch = cv.cvtColor(patch, cv.COLOR_BGR2GRAY)
+                    try:
+                        patch = cv.GaussianBlur(patch, (5,5), 0)
 
+                        circles = cv.HoughCircles(patch, method=cv.HOUGH_GRADIENT, dp=1, minDist=1, param1=1, param2=1, minRadius=0)
+
+                        if (circles is not None):
+                            print("FOUND")
+                            markers.append(squares[i])
+                    except:
+                        print("error")
+                    """
                     contoursT, _ = cv.findContours(patch, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
                     for cntT in contoursT:
                         cntT_len = cv.arcLength(cntT, True)
@@ -178,7 +185,7 @@ def match_warped(squares, image):
                         if len(cntT) == 3 or not(issquare):# and cv.countourArea(cnt) > 200:
                             markers.append(squares[i])
                     cv.imshow("desenh", draw2)
-                  
+                    """
         k = k+1
     return markers
 def order_points(pts):
@@ -236,51 +243,47 @@ def four_point_transform(image, pts):
 	return warped
 
 #####################################################################
-
-#Começar a captura
-cap = cv.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
-cap.set(10, 100)
+img_markers = []
+name = "markers/Markers_Novos/"  #PUT NAME OF IMAGE HERE
+img_markers.append(cv.imread(name + "B1.jpeg"))
+img_markers.append(cv.imread(name + "B2.jpeg"))
+img_markers.append(cv.imread(name + "B3.jpeg"))
+img_markers.append(cv.imread(name + "B4.jpeg"))
+img_markers.append(cv.imread(name + "B5.jpeg"))
+found = []
 
 #parameters initialization
-sucess, img = cap.read()
 minPerimeterRate = 0.03
 maxPerimeterRate = 4
 minCornerDistanceRate = 0.05
-minPerimeterPixels = minPerimeterRate * np.maximum(img.shape[0], img.shape[1])
-maxPerimeterPixels = maxPerimeterRate * np.maximum(img.shape[0], img.shape[1])
+minPerimeterPixels = minPerimeterRate * np.maximum(img_markers[0].shape[0], img_markers[0].shape[1])
+maxPerimeterPixels = maxPerimeterRate * np.maximum(img_markers[0].shape[0], img_markers[0].shape[1])
 parameters = aruco.DetectorParameters_create() ##S
 minDistanceToBorder = parameters.minDistanceToBorder
-minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
+minDistSq = np.maximum(img_markers[0].shape[0], img_markers[0].shape[1]) * np.maximum(img_markers[0].shape[0], img_markers[0].shape[1])
+
+color = (0,255,0)
 
 
-while True:
-    success, img = cap.read()
+for i in range(5): 
+    #grayscale
 
-    """
+    img = img_markers[i]
+
     #resize imagem
-    scale_percent = 50 # percent of original size
+    scale_percent = 40 # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)   
     img = cv.resize(img, dim)
-    """
 
-    #grayscale
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
 
     #canny
     canny = cv.Canny(gray, 255/3, 255)
 
-    #dillation
-    #kernel = np.ones((3,3),np.uint8)
-    #canny = cv.dilate(canny,kernel,iterations = 1)
-
-    
     #countours
     contours, hierarchy = cv.findContours(canny, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    
     # Draw contours
     drawing = np.zeros((canny.shape[0], canny.shape[1], 3), dtype=np.uint8)
     for i in range(len(contours)):
@@ -289,10 +292,8 @@ while True:
     # Show in a window
     cv.imshow('Contours', drawing)
 
-    
-    
     squares = []
-    triangles = []
+    circles = []
     angle = 0
     for cnt in contours:
         cnt_len = cv.arcLength(cnt, True)
@@ -302,9 +303,8 @@ while True:
             approxCurve = cnt
             sum_angles = quad_sum(cnt)
             minCornerDistancePixels = len(cnt) * minCornerDistanceRate
-           
+            
             for j in range(0,4):
-                print(j, (j+1)%4)
                 d = (approxCurve[j][0] - approxCurve[(j + 1)%4][0]) * (approxCurve[j][0] - approxCurve[(j + 1)%4][0]) + (approxCurve[j][1] - approxCurve[(j + 1)%4][1]) * (approxCurve[j][1] - approxCurve[(j + 1)%4][1])
                 minDistSq = min(minDistSq, d)
 
@@ -323,7 +323,6 @@ while True:
                 warped =[]
                 for j in range(4):
                     candidate_corner.append([approxCurve[j][0], approxCurve[j][1]])
-                print("CANDIDATE CORN")
                 
                 candidate_corner = np.array(candidate_corner)
                 candidate_corner = order_points(candidate_corner)
@@ -335,15 +334,12 @@ while True:
                 a = (x,y,w,h, area, warped, contour_warped)
                 squares.append(a)
                 for k in range(len(contour_warped)):
-                    #contour_len_warped = cv.arcLength(contour_warped[k], True)
-                    #approx_Curve_warped = cv.approxPolyDP(contour_warped[k], (float)((contour_len_warped) * parameters.polygonalApproxAccuracyRate), True)
-                    #if len(approx_Curve_warped) == 3 and cv.isContourConvex(approx_Curve_warped):
+                    
                     cv.drawContours(drawing3, contour_warped, k, color, 1, cv.LINE_8)
 
-                cv.imshow("draw3", drawing3)
+                cv.imshow("draw3", warped)
 
-                #k = cv.waitKey(0)
-                #cv.destroyWindow('draw3')
+
         """
         if len(cnt) == 3:# and cv.countourArea(cnt) > 200:
             xt,yt,wt,ht = cv.boundingRect(cnt)
@@ -362,43 +358,16 @@ while True:
 
     markers = match_warped(squares, gray)
 
-    """
-    #join squares and triangles and orders them
-    shapes = []
-    shapes = squares #+ triangles
-    shapes = sorted(shapes, key=itemgetter(4))
+    if len(markers) > 0:
+        found.append(1)    
+    else:
+        found.append(0)
+
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+
+np.savetxt('Marker_B.txt', found)
 
     
-    #now, to find the marker (triangle inside square inside square)
-    i = len(shapes)-1
-    patch = []
-    while(i >= 0):
-        patch.append(img[(shapes[i][1]):(shapes[i][1]+shapes[i][3]), (shapes[i][0]):(shapes[i][0]+shapes[i][2])])
-        i=i-1
-
-    res, idx = match_templates(patch)
-
-    if res == 1:#finds marker
-        x1 = shapes[i][0]
-        y1 = shapes[i][1]
-        w = shapes[i][2]
-        h = shapes[i][3]
-
-        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
-    """
-    for i in range(len(markers)):
-        x1 = markers[i][0]
-        y1 = markers[i][1]
-        w = markers[i][2]
-        h = markers[i][3]
-        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
-
-    cv.imshow("window", img)
-
-    
-
-
-    #Quebrar se 'q' for premido
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        break
 
