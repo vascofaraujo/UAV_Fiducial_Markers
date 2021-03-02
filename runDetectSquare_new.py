@@ -47,6 +47,8 @@ while True:
     nScales = round(nScales)
 
     candidates = []
+    candidates_contours = []
+    candidates_len = []
     for i in range(nScales):
         currScale = params.adaptiveThreshWinSizeMin + i*params.adaptiveThreshWinSizeStep
         
@@ -63,6 +65,7 @@ while True:
    
         for cnt in contours:
             cnt_len = cv.arcLength(cnt, True)
+            cnt_orig = cnt
             cnt = cv.approxPolyDP(cnt, params.polygonalApproxAccuracyRate*cnt_len, True)
             if len(cnt) == 4  and cv.contourArea(cnt) > 50 and cv.isContourConvex(cnt):
                 cnt = cnt.reshape(-1, 2)     
@@ -70,6 +73,8 @@ while True:
                 for i in range(4):
                     candidatesAux.append([cnt[i][0], cnt[i][1]])
                 candidates.append(candidatesAux)
+                candidates_contours.append(cnt_orig)
+                candidates_len.append(cnt_len)
                 
                 #aux = (currentCandidate, cv.contourArea(cnt))
                 #candidates.append(aux)  
@@ -77,13 +82,78 @@ while True:
           
         #cv.waitKey(0)
     
+
+
+
     #candidates = sorted(candidates, key=itemgetter(1))
     for i in range(len(candidates)):
         candidates[i] = order_points(candidates[i])
+
+
+    candGroup = []
+    #candGroup = np.array(candGroup)
+    candGroup = [-1 for i in range(len(candidates))]
+    #candGroup.resize(len(current_candidates), -1)
+    groupedCandidates = []
     
     for i in range(len(candidates)):
-        x,y,w,h = cv.boundingRect(candidates[i])
-        cv.rectangle(drawing, (x,y), (x+w,y+h), (0,0,255), 2)
+        for j in range(1,len(candidates)):
+            minimum_perimeter = min(len(candidates_contours[i]), len(candidates_contours[j]))
+            for fc in range(4):
+                distsq=0
+                for c in range(4):
+                    modC = (c+fc)%4
+                    distsq = distsq + (candidates[i][modC][0] - candidates[j][c][0])**2 +  (candidates[i][modC][1] - candidates[j][c][1])**2
+                distsq = distsq/4.0
+                minMarkerDistancePixels = float(minimum_perimeter)*params.minMarkerDistanceRate
+                if(distsq < minMarkerDistancePixels**2):
+                    if(candGroup[i]<0 and candGroup[j]<0):
+                        candGroup[i] = candGroup[j] = (int)(len(groupedCandidates))
+                        grouped = []
+                        grouped.append(i)
+                        grouped.append(j)
+                        groupedCandidates.append(grouped)
+                    elif(candGroup[i] > -1 and candGroup[j] == -1):
+                        group = candGroup[i]
+                        candGroup[j] = group
+                        groupedCandidates[group].append(j)
+                    elif(candGroup[j] > -1 and candGroup[i] == -1):
+                        group = candGroup[j]
+                        candGroup[i] = group
+                        groupedCandidates[group].append(i)
+    
+    biggerCandidates = []
+    biggerContours = []
+    print(groupedCandidates)
+    for i in range(len(groupedCandidates)):
+        smallerIdx = groupedCandidates[i][0]
+        biggerIdx = -1
+        for j in range(1, len(groupedCandidates[i])):
+            currPerim = candidates_len[ groupedCandidates[i][j] ]
+            if biggerIdx < 0:
+                biggerIdx = groupedCandidates[i][j]
+            elif(currPerim >= len(candidates_contours[ biggerIdx ])):
+                biggerIdx = groupedCandidates[i][j]
+            
+            if(currPerim < len(candidates_contours[ smallerIdx ])):
+                smallerIdx = groupedCandidates[i][j]
+
+        if (biggerIdx > -1):
+            biggerCandidates.append(candidates[biggerIdx])
+            biggerContours.append(candidates_contours[biggerIdx])
+
+
+
+    #print(groupedCandidates)
+    #cv.waitKey(0)
+    for i in range(len(biggerCandidates)):
+        x,y,w,h = cv.boundingRect(biggerCandidates[i])
+        cv.rectangle(drawing, (x,y), (x+w,y+h), (255,0,0), 3)
+
+    
+    #for i in range(len(candidates)):
+    #    x,y,w,h = cv.boundingRect(candidates[i])
+    #    cv.rectangle(drawing, (x,y), (x+w,y+h), (0,0,255), 2)
 
     cv.imshow('Contours', drawing)
     
