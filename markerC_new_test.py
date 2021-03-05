@@ -1,7 +1,9 @@
 import cv2 as cv
 import numpy as np
+from numpy.linalg import norm
 import cv2.aruco as aruco
 from operator import itemgetter, attrgetter
+import PIL
 
 def order_points(pts):
     pts = np.array(pts)
@@ -24,22 +26,136 @@ def order_points(pts):
     # return the ordered coordinates
     return rect
 
+def four_point_transform(image, pts):
+	# obtain a consistent order of the points and unpack them
+	# individually
+	rect = order_points(pts)
+	(tl, tr, br, bl) = rect
+	# compute the width of the new image, which will be the
+	# maximum distance between bottom-right and bottom-left
+	# x-coordiates or the top-right and top-left x-coordinates
+	widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+	widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+	maxWidth = max(int(widthA), int(widthB))
+	# compute the height of the new image, which will be the
+	# maximum distance between the top-right and bottom-right
+	# y-coordinates or the top-left and bottom-left y-coordinates
+	heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+	heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+	maxHeight = max(int(heightA), int(heightB))
+	# now that we have the dimensions of the new image, construct
+	# the set of destination points to obtain a "birds eye view",
+	# (i.e. top-down view) of the image, again specifying points
+	# in the top-left, top-right, bottom-right, and bottom-left
+	# order
+	dst = np.array([
+		[0, 0],
+		[maxWidth - 1, 0],
+		[maxWidth - 1, maxHeight - 1],
+		[0, maxHeight - 1]], dtype = "float32")
+	# compute the perspective transform matrix and then apply it
+	M = cv.getPerspectiveTransform(rect, dst)
+	warped = cv.warpPerspective(image, M, (maxWidth, maxHeight))
+	# return the warped image
+	return warped
 
-#Começar a captura
-cap = cv.VideoCapture(0)
-cap.set(3, 640)
-cap.set(4, 480)
-cap.set(10, 100)
+
+def match_warped(squares, image):
+    markers = []
+    k = 0
+    for i in range(len(squares)):
+        contours = squares[i][4]      
+        draw2 = np.zeros((squares[i][5].shape[0], squares[i][5].shape[1], 3), dtype=np.uint8)
+
+        for cnt in contours:
+            cnt_len = cv.arcLength(cnt, True)
+            cnt = cv.approxPolyDP(cnt, 0.03*cnt_len, True)
+
+            if len(cnt) == 4 and cv.isContourConvex(cnt):
+                    print("ENTER")
+                    cnt = cnt.reshape(-1, 2)
+                    issquare = compare_distances(cnt)
+                    if not(issquare):
+                        continue
+
+                    x,y,w,h = cv.boundingRect(cnt)   
+
+                    if x<0.2*squares[i][5].shape[0] or y<0.2*squares[i][5].shape[1]:
+                        continue
+
+                    patch = squares[i][5]
+                    width = patch.shape[1]
+                    height = patch.shape[0]
+
+                    cv.imshow("patches", patch)
+                    cv.waitKey(0)
+                    cv.destroyWindow("patches")
+                    white = 0
+                    black = 0
+                    for w in range(width):
+                        for h in range(height):
+                            pixel = patch[h][w]
+
+                            if (pixel == 255):
+                                white += 1
+                            else:
+                                black += 1
+                    print(black/white)
+                    if black/white > 1.5 and black/white < 3:
+                        markers.append(squares[i])        
+
+        k = k+1
+    return markers
+
+def compare_distances(cnt):
+    try:
+        p1 = np.array([cnt[0][0], cnt[0][1]])
+        p2 = np.array([cnt[1][0], cnt[1][1]])
+        p3 = np.array([cnt[2][0], cnt[2][1]])
+        p4 = np.array([cnt[3][0], cnt[3][1]])
+    except:
+        result = False
+        return result
+
+    p12 = norm(p1-p2)
+    p23 = norm(p2-p3)
+    p34 = norm(p3-p4)
+    p41 = norm(p4-p1)
+    
+    minimum_dist = min(p12, p23, p34, p41)
+    maximum_dist = max(p12, p23, p34, p41)
+
+    if minimum_dist / maximum_dist > 0.8:
+        result = True
+    else:
+        result = False
+
+    return result
+########################################################################################
+img_markers = []
+name = "markers/Markers_Novos/"  #PUT NAME OF IMAGE HERE
+img_markers.append(cv.imread(name + "C1.jpeg"))
+img_markers.append(cv.imread(name + "C2.jpeg"))
+img_markers.append(cv.imread(name + "C3.jpeg"))
+img_markers.append(cv.imread(name + "C4.jpeg"))
+img_markers.append(cv.imread(name + "C5.jpeg"))
+found = []
 
 #parameters initialization
-sucess, img = cap.read()
+img = img_markers[0]
 params = aruco.DetectorParameters_create()
 minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
 
 
+for i in range(5):
+    img = img_markers[i]
 
-while True:
-    success, img = cap.read()
+    #resize imagem
+    scale_percent = 40 # percent of original size
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)   
+    img = cv.resize(img, dim)
 
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
 
@@ -124,7 +240,6 @@ while True:
     
     biggerCandidates = []
     biggerContours = []
-    print(groupedCandidates)
     for i in range(len(groupedCandidates)):
         smallerIdx = groupedCandidates[i][0]
         biggerIdx = -1
@@ -141,16 +256,43 @@ while True:
         if (biggerIdx > -1):
             biggerCandidates.append(candidates[biggerIdx])
             biggerContours.append(candidates_contours[biggerIdx])
-    
 
 
-    #show squares in image
+    squares = []
+
     for i in range(len(biggerCandidates)):
         x,y,w,h = cv.boundingRect(biggerCandidates[i])
         cv.rectangle(drawing, (x,y), (x+w,y+h), (255,0,0), 3)
+
+        warped = four_point_transform(gray, biggerCandidates[i])
+        _, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+        contour_warped, _ = cv.findContours(warped, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)          
+
+        aux = (x,y,w,h,contour_warped, warped)
+        squares.append(aux)
+    
+    markers = match_warped(squares, gray)
+    
+    if len(markers) > 0:
+        found.append(1)    
+    else:
+        found.append(0)
+
+    for i in range(len(markers)):
+        x1 = markers[i][0]
+        y1 = markers[i][1]
+        w = markers[i][2]
+        h = markers[i][3]
+        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
+
+    cv.imshow("window", img)
+
+        
+
     cv.imshow('Contours', drawing)
     
 
+    cv.waitKey(0)
 
     #Quebrar se 'q' for premido
     if cv.waitKey(1) & 0xFF == ord('q'):
