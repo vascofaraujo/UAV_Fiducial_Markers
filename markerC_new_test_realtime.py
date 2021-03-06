@@ -72,56 +72,42 @@ def match_warped(squares, image):
             cnt = cv.approxPolyDP(cnt, 0.03*cnt_len, True)
 
             if len(cnt) == 4 and cv.isContourConvex(cnt):
-                    print("ENTER")
-                    cnt = cnt.reshape(-1, 2)
-                    issquare = compare_distances(cnt)
-                    if not(issquare):
-                        continue
+                cnt = cnt.reshape(-1, 2)
+                issquare = compare_distances(cnt)
+                if not(issquare):
+                    continue
 
-                    x,y,w,h = cv.boundingRect(cnt)   
-                    
-                    if x<0.2*squares[i][5].shape[0] or y<0.2*squares[i][5].shape[1]:
-                        continue
+                x,y,w,h = cv.boundingRect(cnt)   
+                
+                if x<0.2*squares[i][5].shape[0] or y<0.2*squares[i][5].shape[1]:
+                    continue
 
-                    if quad_sum(cnt) != 360:
-                        continue
+                if quad_sum(cnt) != 360:
+                    continue
 
-                    areaBig = squares[i][5].shape[0] * squares[i][5].shape[1]
-                    areaSmall = cv.contourArea(cnt)
-                    if not(areaSmall/areaBig > 0.15 and areaSmall/areaBig < 0.35):
-                        continue
+                areaBig = squares[i][5].shape[0] * squares[i][5].shape[1]
+                areaSmall = cv.contourArea(cnt)
+                if not(areaSmall/areaBig > 0.15 and areaSmall/areaBig < 0.35):
+                    continue
 
-                    patch = squares[i][5]
-                    width = patch.shape[1]
-                    height = patch.shape[0]
+                patch = squares[i][5]
+                width = patch.shape[1]
+                height = patch.shape[0]
 
-                    white = 0
-                    black = 0
-                    for w in range(width):
-                        for h in range(height):
-                            pixel = patch[h][w]
+                white = 0
+                black = 0
+                for w in range(width):
+                    for h in range(height):
+                        pixel = patch[h][w]
 
-                            if (pixel == 255):
-                                white += 1
-                            else:
-                                black += 1
-                    print(black/white)
-                    #
-                    x,y,w,h = cv.boundingRect(cnt)   
+                        if (pixel == 255):
+                            white += 1
+                        else:
+                            black += 1
+                if black/white > 1.5 and black/white < 3:
+                    markers.append(squares[i])   
 
-
-                    #
-                    if black/white > 1.5 and black/white < 3:
-                        patchWhite = squares[i][5][x:x+w, y:y+h]
-                        markers.append(squares[i])   
-                        print(areaBig/areaSmall, areaSmall/areaBig)
-
-                   
-                        cv.imshow("whiteSquare", patchWhite)
-                        cv.imshow("patches", patch)
-                        cv.waitKey(0)
-                        cv.destroyWindow("patches")
-                        cv.destroyWindow("whiteSquare")
+            
 
         k = k+1
     return markers
@@ -182,30 +168,20 @@ def quad_sum(cnt):
 
 
 ########################################################################################
-img_markers = []
-name = "markers/Markers_Novos/"  #PUT NAME OF IMAGE HERE
-img_markers.append(cv.imread(name + "C1.jpeg"))
-img_markers.append(cv.imread(name + "C2.jpeg"))
-img_markers.append(cv.imread(name + "C3.jpeg"))
-img_markers.append(cv.imread(name + "C4.jpeg"))
-img_markers.append(cv.imread(name + "C5.jpeg"))
-found = []
+#Começar a captura
+cap = cv.VideoCapture(0)
+cap.set(3, 640)
+cap.set(4, 480)
+cap.set(10, 100)
 
 #parameters initialization
-img = img_markers[0]
+_, img = cap.read()
 params = aruco.DetectorParameters_create()
 minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
 
 
-for i in range(5):
-    img = img_markers[i]
-
-    #resize imagem
-    scale_percent = 40 # percent of original size
-    width = int(img.shape[1] * scale_percent / 100)
-    height = int(img.shape[0] * scale_percent / 100)
-    dim = (width, height)   
-    img = cv.resize(img, dim)
+while True:
+    sucess, img = cap.read()
 
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
 
@@ -241,15 +217,6 @@ for i in range(5):
                 candidates.append(candidatesAux)
                 candidates_contours.append(cnt_orig)
                 candidates_len.append(cnt_len)
-                
-                #aux = (currentCandidate, cv.contourArea(cnt))
-                #candidates.append(aux)  
-
-          
-        #cv.waitKey(0)
-    
-
-
 
     #candidates = sorted(candidates, key=itemgetter(1))
     for i in range(len(candidates)):
@@ -323,10 +290,7 @@ for i in range(5):
    
     markers = match_warped(squares, gray)
     
-    if len(markers) > 0:
-        found.append(1)    
-    else:
-        found.append(0)
+    
 
     for i in range(len(markers)):
         x1 = markers[i][0]
@@ -342,7 +306,7 @@ for i in range(5):
     cv.imshow('Contours', drawing)
     
 
-    cv.waitKey(0)
+    
 
     #Quebrar se 'q' for premido
     if cv.waitKey(1) & 0xFF == ord('q'):
