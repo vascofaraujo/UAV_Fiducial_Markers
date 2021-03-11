@@ -80,7 +80,11 @@ def match_warped(squares, image):
             y = round(y)
             R = round(R)
             cv.circle(image, (x+squares[i][0], y+squares[i][1]), R, (255, 0, 0), 1)
-            #cv.imshow("draw2", draw2)
+            
+            #cv.circle(patch, (x,y), R, (255,0,0), 3)
+            
+           
+             #cv.imshow("draw2", draw2)
 
             if (circles is not None):
                 areaBig = squares[i][5].shape[0] * squares[i][5].shape[1]
@@ -111,8 +115,9 @@ def match_warped(squares, image):
                 else:
                     print("BLACK AND WHITE")
 
-            
+        #cv.imshow("patch", patch)    
         #cv.waitKey(0)
+        #cv.destroyWindow("patch")
         k = k+1
     return markers
 
