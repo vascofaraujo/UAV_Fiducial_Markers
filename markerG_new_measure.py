@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
-from numpy.linalg import norm
 import math
+from numpy.linalg import norm
 import cv2.aruco as aruco
 import matplotlib.pyplot as plt
 from operator import itemgetter, attrgetter
@@ -66,33 +66,31 @@ def match_warped(squares, image):
     markers = []
     k = 0
     for i in range(len(squares)):
-        contours = squares[i][4]      
+        contours = squares[i][4]   
+        patch = squares[i][5]   
         draw2 = np.zeros((squares[i][5].shape[0], squares[i][5].shape[1], 3), dtype=np.uint8)
 
-        for cnt in contours:
-            cnt_len = cv.arcLength(cnt, True)
-            cnt = cv.approxPolyDP(cnt, 0.03*cnt_len, True)
+        circles = cv.HoughCircles(patch, method=cv.HOUGH_GRADIENT, dp=1, minDist=20, param1=5, param2=5, maxRadius=100)
 
-            if len(cnt) == 4 and cv.isContourConvex(cnt):
-                cnt = cnt.reshape(-1, 2)
-                issquare = compare_distances(cnt)
-                if not(issquare):
-                    continue
+        if (circles is None):
+            continue 
+        circles = np.int16(np.around(circles))
+        for pt in circles[0, :]:
+            x, y, R = pt[0], pt[1], pt[2]
+            x = round(x)
+            y = round(y)
+            R = round(R)
+            cv.circle(image, (x+squares[i][0], y+squares[i][1]), R, (255, 0, 0), 1)
+            #cv.imshow("draw2", draw2)
 
-                x,y,w,h = cv.boundingRect(cnt)   
-                
-                if x<0.2*squares[i][5].shape[0] or y<0.2*squares[i][5].shape[1]:
-                    continue
-
-                if quad_sum(cnt) != 360:
-                    continue
-
+            if (circles is not None):
                 areaBig = squares[i][5].shape[0] * squares[i][5].shape[1]
-                areaSmall = cv.contourArea(cnt)
-                if not(areaSmall/areaBig > 0.15 and areaSmall/areaBig < 0.35):
+                areaSmall = np.pi*(R^2)
+                if not(areaSmall/areaBig > 0.003 and areaSmall/areaBig < 0.03):
+                    continue
+                if not(x > 0.4*patch.shape[0] and x < 0.6*patch.shape[0] and y > 0.4*patch.shape[1] and y < 0.6*patch.shape[1]):
                     continue
 
-                patch = squares[i][5]
                 width = patch.shape[1]
                 height = patch.shape[0]
 
@@ -169,6 +167,7 @@ def quad_sum(cnt):
     return sum_angles
 
 
+
 def isRotationMatrix(R): # This function checks if a Matrix is a valid rotation matrix.
     
     Rt = np.transpose(R)
@@ -191,8 +190,13 @@ def rotationMatrixToEulerAngles(R): # This function converts rotation matrices t
         z = 0
     return np.array([x, y, z])
 
+
+
+
+
 ########################################################################################
-#Começar a captura
+
+
 marker_size = 10
 calib_path = 'D:/Desktop/IST/UAV/Visao/'
 camera_matrix = np.loadtxt(calib_path+'Camera_Matrix.txt', delimiter =',')
@@ -215,6 +219,8 @@ object_points = np.array(object_points)
 data = []
 Save = False
 
+
+#Começar a captura
 cap = cv.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
@@ -333,7 +339,7 @@ while True:
 
         aux = (x,y,w,h,contour_warped, warped, biggerCandidates[i])
         squares.append(aux)
-    
+   
     markers = match_warped(squares, gray)
     
     
@@ -344,28 +350,25 @@ while True:
         w = markers[i][2]
         h = markers[i][3]
         corners = markers[i][6]
-        cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
+        cv.rectangle(gray, (x1,y1), (x1+w,y1+h), (0,255,0),10)
         _, rvec, tvec = cv.solvePnP(object_points, corners, camera_matrix, camera_distortion, flags = cv.SOLVEPNP_IPPE_SQUARE)
         marker_distance = np.linalg.norm(tvec)
         R_ct = np.matrix(cv.Rodrigues(rvec)[0]) # rotation matrix of camera wrt marker.
-
         R_tc = R_ct.T # rotation matrix of marker wrt camera
         roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_Flip*R_tc)
+
+
         str_position = "Marker Position: x = %4.0f y = %4.0f z = %4.0f"%(tvec[0], tvec[1], tvec[2])
         cv.putText(img, str_position, (0, 100), font, 0.5, (255,0,0), 2, cv.LINE_AA)
 
         str_distance = "Marker Distance: d = %4.0f"%(marker_distance)
         cv.putText(img, str_distance, (0, 150), font, 0.5, (255,0,0), 2, cv.LINE_AA)
-    
+
         str_attitude = "Marker Attitude r=%4.0f p=%4.0f y=%4.0f"%(math.degrees(roll_marker),math.degrees(pitch_marker),math.degrees(yaw_marker))
         cv.putText(img, str_attitude, (0, 200), font, 0.5, (255,0,0), 2, cv.LINE_AA)
-
-
         data.append(marker_distance)
-    
 
     
-
     cv.imshow("window", img)
 
         
@@ -385,4 +388,5 @@ if data:
     plt.show()
     if Save:
         np.savetxt('Results_M3.txt', data, fmt='%f')
-    
+
+
