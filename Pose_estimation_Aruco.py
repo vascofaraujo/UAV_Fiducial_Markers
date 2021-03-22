@@ -33,14 +33,14 @@ def rotationMatrixToEulerAngles(R): # This function converts rotation matrices t
 id_to_find = 1
 marker_size = 10 #cm
 
-calib_path = 'aruco/'
+calib_path = 'markers/'
 camera_matrix = np.loadtxt(calib_path+'Camera_Matrix.txt', delimiter =',')
 camera_distortion = np.loadtxt(calib_path+'Camera_Distortion.txt', delimiter =',')
 
 #MATRIX ARTHUR
-camera_matrix = np.array([[952.43177038,   0.,         549.30264452], [  0.,         970.45074836, 383.53723324], [  0.,           0.,           1.        ]] )
-camera_distortion = np.array([[ 1.31010569e+00, -1.01194944e+01,  4.95960771e-03, -9.15041261e-02, 3.32436266e+01]])
-camera_distortion = np.array( [[ 0.09461896, -0.15891827, -0.01771996, -0.03144384,  0.13721958]])
+#camera_matrix = np.array([[952.43177038,   0.,         549.30264452], [  0.,         970.45074836, 383.53723324], [  0.,           0.,           1.        ]] )
+#camera_distortion = np.array([[ 1.31010569e+00, -1.01194944e+01,  4.95960771e-03, -9.15041261e-02, 3.32436266e+01]])
+#camera_distortion = np.array( [[ 0.09461896, -0.15891827, -0.01771996, -0.03144384,  0.13721958]])
 
 DICTNAME = aruco.DICT_4X4_50 #REPLACE HERE
 aruco_dict = aruco.Dictionary_get(DICTNAME)
@@ -52,11 +52,10 @@ R_Flip[1,1] = -1.0
 R_Flip[2,2] = -1.0
 
 font = cv2.FONT_HERSHEY_SIMPLEX
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/AR_video.mp4")
 
 
 while True:
-    print("here")
     ret, frame = cap.read()
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

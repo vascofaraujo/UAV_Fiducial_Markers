@@ -93,6 +93,7 @@ def match_warped(squares, image):
                 patch = squares[i][5]
                 width = patch.shape[1]
                 height = patch.shape[0]
+                cv.imshow("patch", patch)
 
                 white = 0
                 black = 0
@@ -104,9 +105,9 @@ def match_warped(squares, image):
                             white += 1
                         else:
                             black += 1
-                if black/white > 1.5 and black/white < 3:
+                if white/black > 0.3 and white/black < 0.5:
                     markers.append(squares[i])   
-
+                cv.waitKey(0)
             
 
         k = k+1
@@ -169,7 +170,7 @@ def quad_sum(cnt):
 
 ########################################################################################
 #Começar a captura
-cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_video.mp4")
+cap = cv.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
 cap.set(10, 100)

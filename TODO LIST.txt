@@ -1,8 +1,9 @@
 TODO LIST:
 
-1) make scripts for marker C14 
-2) make scripts for markerH
-3) take new pictures and test markers C, C14, G and markerH
-4) incorporate distances
+1) make dynamic resizing 
+
+PLAN:
+Santi : 
+Vasco : get iPhone's camera matrix
 
 

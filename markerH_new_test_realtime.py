@@ -66,6 +66,7 @@ def match_warped(squares, image):
     for i in range(len(squares)):
         contours = squares[i][4]      
         draw2 = np.zeros((squares[i][5].shape[0], squares[i][5].shape[1], 3), dtype=np.uint8)
+        whiteSquare = 0
 
         for cnt in contours:
             cnt_len = cv.arcLength(cnt, True)
@@ -84,29 +85,44 @@ def match_warped(squares, image):
 
                 if quad_sum(cnt) != 360:
                     continue
+                
+
+                patch = squares[i][5]
+                cv.rectangle(patch, (x,y), (x+w,y+h), (255,255,255), 5)
+
+                potencialWhite = patch[x:(x+w),y:(y+h)]
+                
+                width = potencialWhite.shape[1]
+                height = potencialWhite.shape[0]
 
                 areaBig = squares[i][5].shape[0] * squares[i][5].shape[1]
                 areaSmall = cv.contourArea(cnt)
-                if not(areaSmall/areaBig > 0.15 and areaSmall/areaBig < 0.35):
+                if not(areaSmall/areaBig > 0.1 and areaSmall/areaBig < 0.25):
                     continue
-
-                patch = squares[i][5]
-                width = patch.shape[1]
-                height = patch.shape[0]
 
                 white = 0
                 black = 0
                 for w in range(width):
                     for h in range(height):
-                        pixel = patch[h][w]
+                        pixel = potencialWhite[h][w]
 
                         if (pixel == 255):
                             white += 1
                         else:
                             black += 1
-                if black/white > 1.5 and black/white < 3:
-                    markers.append(squares[i])   
+                try:
+                    if white/(white+black) > 0.95:
+                        cv.imshow("ls", potencialWhite)
+                        cv.imshow("skw", patch)
 
+                        whiteSquare += 1
+                    print(whiteSquare)
+                    if whiteSquare == 2:    
+                        markers.append(squares[i])
+                except:
+                    a=0
+                cv.waitKey(0)
+                cv.destroyWindow("ls")
             
 
         k = k+1
@@ -169,7 +185,7 @@ def quad_sum(cnt):
 
 ########################################################################################
 #Começar a captura
-cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_video.mp4")
+cap = cv.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
 cap.set(10, 100)
