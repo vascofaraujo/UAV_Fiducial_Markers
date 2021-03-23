@@ -79,8 +79,8 @@ def match_warped(squares, image):
                 """
                 issquare = compare_distances(cnt)
                 if not(issquare):
+                    print("is square")
                     continue
-
                 x,y,w,h = cv.boundingRect(cnt)   
                 
                 if x<0.2*squares[i][5].shape[0] or y<0.2*squares[i][5].shape[1]:
@@ -133,6 +133,7 @@ def match_warped(squares, image):
                             else:
                                 black += 1
                     if black > white:
+                        cv.imshow("aq", squares[i][5])
                         markers.append(squares[i])
                 #cv.imshow("warpedd", squares[i][5])
                 #print(black/white)
@@ -164,7 +165,7 @@ def compare_distances(cnt):
     minimum_dist = min(p12, p23, p34, p41)
     maximum_dist = max(p12, p23, p34, p41)
 
-    if minimum_dist / maximum_dist > 0.8:
+    if minimum_dist / maximum_dist > 0.4:
         result = True
     else:
         result = False
@@ -272,20 +273,64 @@ found = []
 #img = img_markers[0]
 cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_video.mp4")
 suc, img = cap.read()
-#resize imagem
-scale_percent = 60 # percent of original size
-width = int(img.shape[1] * scale_percent / 100)
-height = int(img.shape[0] * scale_percent / 100)
-dim = (width, height)  
+
 params = aruco.DetectorParameters_create()
 minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
 color = (0, 255, 0)
 
+#resize imagem
+scale_percent = 150 # percent of original size
+width = int(img.shape[1] * scale_percent / 100)
+height = int(img.shape[0] * scale_percent / 100)
+#width= img.shape[1]
+#height = img.shape[0]
+dim = (width, height)
+marker_distance = 0
+exit = False
+count3 = 0
+count2 = 0
+count1 = 0
 while True:
+#for i in range(7): 
     #img = img_markers[i]
     sucess, img = cap.read()
- 
+    if not(sucess):
+        break
+    """
+    if i < 4:
+        scale_percent = 40
+    elif i >= 4:
+        scale_percent = 80
+    """
+    if marker_distance > 400:
+        count3 += 1
+        if count3 == 30:
+            scale_percent = 150
+            count3 = 0
+            count2 = 0
+            count1 = 0
+    elif marker_distance >= 250 and marker_distance <= 400 :
+        count2 += 1
+        if count2 == 30:
+            scale_percent = 100
+            count3 = 0
+            count2 = 0
+            count1 = 0
+    elif marker_distance < 250:
+        count1 += 1
+        if count1 == 30:
+            scale_percent = 60
+            count3 = 0
+            count2 = 0
+            count1 = 0
+    
+
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)
+    
     img = cv.resize(img, dim)
+    
 
 
 
@@ -369,6 +414,10 @@ while True:
                 smallerIdx = groupedCandidates[i][j]
 
         if (biggerIdx > -1):
+            cnt = candidates[biggerIdx].reshape(-1, 2)
+            issquare = compare_distances(cnt)
+            if not(issquare):
+                continue
             biggerCandidates.append(candidates[biggerIdx])
             biggerContours.append(candidates_contours[biggerIdx])
 
@@ -381,7 +430,9 @@ while True:
 
         warped = four_point_transform(gray, biggerCandidates[i])
 
-        _, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+        #_, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+        _, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY)
+
         contour_warped, _ = cv.findContours(warped, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)  
         
         aux = (x,y,w,h,contour_warped, warped, biggerCandidates[i])
@@ -416,6 +467,7 @@ while True:
 
             data.append(marker_distance)
         except:
+            marker_distance = 0
             print("error")
     
 
@@ -428,10 +480,7 @@ while True:
     cv.imshow('Contours', drawing)
     
 
-    
-    #cv.waitKey(0)
-    #cv.destroyAllWindows()
-
+ 
     #Quebrar se 'q' for premido
     if cv.waitKey(1) & 0xFF == ord('q'):
         break
