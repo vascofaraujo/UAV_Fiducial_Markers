@@ -17,13 +17,13 @@ root = Path(__file__).parent.absolute()
 calibrate_camera = True
 
 # Set path to the images
-calib_imgs_path = root.joinpath("aruco_data")
+calib_imgs_path = root.joinpath("aruco_data_old")
 
 # For validating results, show aruco board to camera.
 aruco_dict = aruco.getPredefinedDictionary( aruco.DICT_4X4_50 )
 
 #Provide length of the marker's side
-markerLength = 9  # Here, measurement unit is centimetre.
+markerLength = 4  # Here, measurement unit is centimetre.
 
 # Provide separation between markers
 markerSeparation = 0.5   # Here, measurement unit is centimetre.
@@ -35,7 +35,7 @@ board = aruco.GridBoard_create(4, 5, markerLength, markerSeparation, aruco_dict)
 img = board.draw((864,1080))
 cv2.imshow("aruco", img)
 
-"""
+
 arucoParams = aruco.DetectorParameters_create()
 
 if calibrate_camera == True:
@@ -112,7 +112,7 @@ else:
             if cv2.waitKey(0) & 0xFF == ord('q'):
                 break;
         cv2.imshow("World co-ordinate frame axes", img_aruco)
-"""
+
 
 while True:
     if cv2.waitKey(0) & 0xFF == ord('q'):

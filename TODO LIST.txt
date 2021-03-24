@@ -1,6 +1,7 @@
 TODO LIST:
 
 1) make dynamic resizing 
+2) update camera matrix
 
 PLAN:
 Santi : 

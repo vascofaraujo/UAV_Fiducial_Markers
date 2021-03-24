@@ -199,8 +199,8 @@ marker_size = 10
 #calib_path = 'D:/Desktop/IST/UAV/Visao/'
 #Vasco 
 calib_path = 'C:/totalcmd/IST/UAV-ART/markers/'
-camera_matrix = np.loadtxt(calib_path+'Camera_Matrix.txt', delimiter =',')
-camera_distortion = np.loadtxt(calib_path+'Camera_Distortion.txt', delimiter =',')
+camera_matrix = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
+camera_distortion = np.loadtxt(calib_path+'Camera_Distortion_iPhone.txt', delimiter =',')
 
 font = cv.FONT_HERSHEY_SIMPLEX
 
