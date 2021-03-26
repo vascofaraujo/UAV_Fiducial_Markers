@@ -1,10 +1,6 @@
 TODO LIST:
 
-1) make dynamic resizing 
-2) update camera matrix
-
-PLAN:
-Santi : 
-Vasco : get iPhone's camera matrix
-
+1) paint patch black every 5  consecutive frames
+2) implement tracker
+3) dynamic resizing
 

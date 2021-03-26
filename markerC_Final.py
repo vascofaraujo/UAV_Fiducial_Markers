@@ -6,6 +6,8 @@ import cv2.aruco as aruco
 import matplotlib.pyplot as plt
 from operator import itemgetter, attrgetter
 import PIL
+import timeit
+import datetime
 
 def order_points(pts):
     pts = np.array(pts)
@@ -64,52 +66,36 @@ def four_point_transform(image, pts):
 
 def match_warped(squares, image):
     markers = []
-    k = 0
     for i in range(len(squares)):
-        contours = squares[i][4]      
-        draw2 = np.zeros((squares[i][5].shape[0], squares[i][5].shape[1], 3), dtype=np.uint8)
+        patch = squares[i][4]
+        width = patch.shape[1]
+        height = patch.shape[0]
 
-        for cnt in contours:
-            cnt_len = cv.arcLength(cnt, True)
-            cnt = cv.approxPolyDP(cnt, 0.03*cnt_len, True)
-
-            if True:
-                cnt = cnt.reshape(-1, 2)
-
-                patch = squares[i][5]
-                width = patch.shape[1]
-                height = patch.shape[0]
-
-                white = 1
-                black = 0
-                nPixel = 0
-                
-                for h in range(round(0.4*height), round(0.6*height)):
-                    for w in range(round(0.4*width), round(0.6*width)):
-                        pixel = patch[h][w]
-                        nPixel += 1
-                        if (pixel == 255):
-                            white += 1
-                        else:
-                            black += 1
-                if black/white < 0.05:
-                    black = 0
-                    white = 0
-                    for w in range(width):
-                        for h in range(height):
-                            pixel = patch[h][w]
-
-                            if (pixel == 255):
-                                white += 1
-                            else:
-                                black += 1
-                    if black > white:
-                        cv.imshow("aq", squares[i][5])
-                        markers.append(squares[i])
-
-            
-
-        k = k+1
+        white = 1
+        black = 0
+        nPixel = 0
+        
+        for h in range(round(0.4*height), round(0.6*height)):
+            for w in range(round(0.4*width), round(0.6*width)):
+                pixel = patch[h][w]
+                nPixel += 1
+                if (pixel == 255):
+                    white += 1
+                else:
+                    black += 1
+        if black/white < 0.05:
+            black = 0
+            white = 0
+            for w in range(width):
+                for h in range(height):
+                    pixel = patch[h][w]
+                    if (pixel == 255):
+                        white += 1
+                    else:
+                        black += 1
+            if black > white:
+                cv.imshow("aq", squares[i][4])
+                markers.append(squares[i])
     return markers
 
 def compare_distances(cnt):
@@ -159,109 +145,8 @@ def rotationMatrixToEulerAngles(R): # This function converts rotation matrices t
         z = 0
     return np.array([x, y, z])
 
-########################################################################################
-#Começar a captura
-marker_size = 11
-#Santi
-#calib_path = 'D:/Desktop/IST/UAV/Visao/'
-#Vasco 
-calib_path = 'C:/totalcmd/IST/UAV-ART/markers/'
-camera_matrix = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
-camera_distortion = np.loadtxt(calib_path+'Camera_Distortion_iPhone.txt', delimiter =',')
-
-
-font = cv.FONT_HERSHEY_SIMPLEX
-
-R_Flip = np.zeros((3,3), dtype = np.float32)
-R_Flip[0,0] = 1.0
-R_Flip[1,1] = -1.0
-R_Flip[2,2] = -1.0
-
-object_points = []
-object_points.append( [float(-marker_size / 2),float(marker_size / 2), 0])
-object_points.append( [float(marker_size / 2),float(marker_size / 2), 0])
-object_points.append(  [float(marker_size / 2),float(-marker_size / 2), 0])
-object_points.append(  [float(-marker_size / 2),float(-marker_size / 2), 0])
-object_points = np.array(object_points)
-
-data = []
-Save = False
-
-cap = cv.VideoCapture()
-cap.set(3, 640)
-cap.set(4, 480)
-cap.set(10, 100)
-
-
-img_markers = []
-name = "markers/New_Images/"  #PUT NAME OF IMAGE HERE
-img_markers.append(cv.imread(name + "C1.jpeg"))
-img_markers.append(cv.imread(name + "C2.jpeg"))
-img_markers.append(cv.imread(name + "C3.jpeg"))
-img_markers.append(cv.imread(name + "C4.jpeg"))
-img_markers.append(cv.imread(name + "C5.jpeg"))
-img_markers.append(cv.imread(name + "C6.jpeg"))
-img_markers.append(cv.imread(name + "C7.jpeg"))
-found = []
-
-
-#parameters initialization
-#img = img_markers[0]
-cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_video2.mp4")
-suc, img = cap.read()
-
-params = aruco.DetectorParameters_create()
-minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
-color = (0, 255, 0)
-
-#resize imagem
-scale_percent = 150 # percent of original size
-width = int(img.shape[1] * scale_percent / 100)
-height = int(img.shape[0] * scale_percent / 100)
-#width= img.shape[1]
-#height = img.shape[0]
-dim = (width, height)
-marker_distance = 0
-exit = False
-count3 = 0
-count2 = 0
-count1 = 0
-
-#while True:
-for i in range(7): 
-    img = img_markers[i]
-    #sucess, img = cap.read()
-    #if not(sucess):
-    #    break
-
-    if marker_distance > 400:
-        count3 += 1
-        if count3 == 30:
-            scale_percent = 150
-            count3 = 0
-            count2 = 0
-            count1 = 0
-    elif marker_distance >= 250 and marker_distance <= 400 :
-        count2 += 1
-        if count2 == 30:
-            scale_percent = 100
-            count3 = 0
-            count2 = 0
-            count1 = 0
-    elif marker_distance < 250:
-        count1 += 1
-        if count1 == 30:
-            scale_percent = 60
-            count3 = 0
-            count2 = 0
-            count1 = 0
-    
-    scale_percent = 100
-    width = int(img.shape[1] * scale_percent / 100)
-    height = int(img.shape[0] * scale_percent / 100)
-    dim = (width, height)
-    
-    img = cv.resize(img, dim)
+def computeMarker(img, flagFound):
+    bbox = (0,0,0,0)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
 
     candidates = []
@@ -348,29 +233,31 @@ for i in range(7):
 
     for i in range(len(biggerCandidates)):
         x,y,w,h = cv.boundingRect(biggerCandidates[i])
+
         cv.rectangle(drawing, (x,y), (x+w,y+h), (255,0,0), 3)
 
         warped = four_point_transform(gray, biggerCandidates[i])
 
-        #_, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
-        _, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY)
-
-        contour_warped, _ = cv.findContours(warped, cv.RETR_LIST, cv.CHAIN_APPROX_NONE)  
+        _, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY | cv.THRESH_OTSU)
+        #_, warped = cv.threshold(warped, 125, 255, cv.THRESH_BINARY)
         
-        aux = (x,y,w,h,contour_warped, warped, biggerCandidates[i])
+        aux = (x,y,w,h, warped, biggerCandidates[i])
         squares.append(aux)
     
     markers = match_warped(squares, gray)
     
-
+    foundMarker = False
     for i in range(len(markers)):
         x1 = markers[i][0]
         y1 = markers[i][1]
         w = markers[i][2]
         h = markers[i][3]
-        corners = markers[i][6]
+        corners = markers[i][5]
         cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
+        foundMarker = True
+
         try:
+
             _, rvec, tvec = cv.solvePnP(object_points, corners, camera_matrix, camera_distortion, flags = cv.SOLVEPNP_IPPE_SQUARE)
             marker_distance = np.linalg.norm(tvec)
             R_ct = np.matrix(cv.Rodrigues(rvec)[0]) # rotation matrix of camera wrt marker.
@@ -386,18 +273,153 @@ for i in range(7):
             str_attitude = "Marker Attitude r=%4.0f p=%4.0f y=%4.0f"%(math.degrees(roll_marker),math.degrees(pitch_marker),math.degrees(yaw_marker))
             cv.putText(img, str_attitude, (0, 200), font, 0.5, (255,0,0), 2, cv.LINE_AA)
 
-
             data.append(marker_distance)
+
+            flagFound = flagFound+1
+            bbox = (x1, y1, w, h)
         except:
             marker_distance = 0
             print("error")
+    if foundMarker == False:
+        flagFound = 0
+    return img, drawing, flagFound, bbox
 
-    cv.imshow("imageThresh", threshImage)
-    cv.imshow("window", img)
-    cv.imshow('Contours', drawing)
+########################################################################################
+#Começar a captura
+marker_size = 11
+#Santi
+#calib_path = 'D:/Desktop/IST/UAV/Visao/'
+#Vasco 
+calib_path = 'C:/totalcmd/IST/UAV-ART/markers/'
+camera_matrix = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
+camera_distortion = np.loadtxt(calib_path+'Camera_Distortion_iPhone.txt', delimiter =',')
+
+
+font = cv.FONT_HERSHEY_SIMPLEX
+
+R_Flip = np.zeros((3,3), dtype = np.float32)
+R_Flip[0,0] = 1.0
+R_Flip[1,1] = -1.0
+R_Flip[2,2] = -1.0
+
+object_points = []
+object_points.append( [float(-marker_size / 2),float(marker_size / 2), 0])
+object_points.append( [float(marker_size / 2),float(marker_size / 2), 0])
+object_points.append(  [float(marker_size / 2),float(-marker_size / 2), 0])
+object_points.append(  [float(-marker_size / 2),float(-marker_size / 2), 0])
+object_points = np.array(object_points)
+
+data = []
+Save = False
+
+cap = cv.VideoCapture()
+cap.set(3, 640)
+cap.set(4, 480)
+cap.set(10, 100)
+
+
+img_markers = []
+name = "markers/New_Images/"  #PUT NAME OF IMAGE HERE
+img_markers.append(cv.imread(name + "C1.jpeg"))
+img_markers.append(cv.imread(name + "C2.jpeg"))
+img_markers.append(cv.imread(name + "C3.jpeg"))
+img_markers.append(cv.imread(name + "C4.jpeg"))
+img_markers.append(cv.imread(name + "C5.jpeg"))
+img_markers.append(cv.imread(name + "C6.jpeg"))
+img_markers.append(cv.imread(name + "C7.jpeg"))
+found = []
+
+
+#parameters initialization
+#img = img_markers[0]
+cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast_short.MOV")
+suc, img = cap.read()
+
+params = aruco.DetectorParameters_create()
+minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
+color = (0, 255, 0)
+
+#resize imagem
+scale_percent = 150 # percent of original size
+width = int(img.shape[1] * scale_percent / 100)
+height = int(img.shape[0] * scale_percent / 100)
+
+marker_distance = 0
+exit = False
+count3 = 0
+count2 = 0
+count1 = 0
+
+numframe = 0
+flagFound = 0
+bbox = (0,0,0,0)
+while True:
+#for i in range(7): 
+    #img = img_markers[i]
+    sucess, img = cap.read()
+    if not(sucess):
+        break
+    else:
+        numframe += 1
+
+    """
+    if marker_distance > 400:
+        count3 += 1
+        if count3 == 30:
+            scale_percent = 150
+            count3 = 0
+            count2 = 0
+            count1 = 0
+    elif marker_distance >= 250 and marker_distance <= 400 :
+        count2 += 1
+        if count2 == 30:
+            scale_percent = 100
+            count3 = 0
+            count2 = 0
+            count1 = 0
+    elif marker_distance < 250:
+        count1 += 1
+        if count1 == 30:
+            scale_percent = 60
+            count3 = 0
+            count2 = 0
+            count1 = 0
+    """
+    scale_percent = 150
+    width = int(img.shape[1] * scale_percent / 100)
+    height = int(img.shape[0] * scale_percent / 100)
+    dim = (width, height)
     
-    cv.waitKey(0)
-    cv.destroyAllWindows()
+    img = cv.resize(img, dim)
+
+    #a = datetime.datetime.now()
+    #if numframe == 10:
+    print(flagFound)
+
+    if flagFound > 5:
+        print(bbox)
+        
+        x = bbox[0]
+        y = bbox[1]
+        w = bbox[2]
+        h = bbox[3]
+        img = img[ (y - 10*h):(y+10*h), (x-10*w):(x+10*w)]
+    image, drawing, flagFound, bbox = computeMarker(img, flagFound)
+    cv.imshow("window", image)
+    cv.imshow('Contours', drawing)
+
+
+
+
+    #    numframe = 0
+    #b = datetime.datetime.now()
+   
+
+    #cv.imshow("imageThresh", threshImage)
+    
+    
+    #cv.waitKey(0)
+    #cv.destroyAllWindows()
     
     #Quebrar se 'q' for premido
     if cv.waitKey(1) & 0xFF == ord('q'):

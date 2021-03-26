@@ -17,7 +17,7 @@ root = Path(__file__).parent.absolute()
 calibrate_camera = True
 
 # Set path to the images
-calib_imgs_path = root.joinpath("aruco_data_2")
+calib_imgs_path = root.joinpath("aruco_data_3")
 
 # For validating results, show aruco board to camera.
 aruco_dict = aruco.getPredefinedDictionary( aruco.DICT_6X6_1000 )
