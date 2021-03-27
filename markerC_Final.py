@@ -358,14 +358,20 @@ bbox = (0,0,0,0)
 
 trackerIsInit = False
 countFrame = 0
+
+#CHANGE IS SCALE AND CAMERA MATRIX
+scale_percent = 200
+scale_camera = scale_percent / 100
+camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
+camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
+camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
+camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
+
 while True:
-#for i in range(7): 
-    #img = img_markers[i]
     sucess, img = cap.read()
     if not(sucess):
         break
     
-    scale_percent = 100
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
@@ -379,14 +385,14 @@ while True:
         h = bbox[3]
 
         mask = np.full((img.shape[0], img.shape[1]), 0, dtype=np.uint8)
-        cv.rectangle(mask, (x-5*w, y-5*h), (x+5*w, y+5*h), 255, -1)
+        cv.rectangle(mask, (x-3*w, y-3*h), (x+2*w, y+2*h), 255, -1)
         img = cv.bitwise_and(img, img, mask=mask)
 
      
     img, drawing, flagFound, bbox = computeMarker(img, flagFound, bbox)
 
     cv.imshow("window", img)
-    #cv.imshow('Contours', drawing)
+    cv.imshow('Contours', drawing)
 
     
     #cv.waitKey(0)
