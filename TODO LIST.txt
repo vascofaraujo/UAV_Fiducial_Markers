@@ -1,5 +1,5 @@
 TODO LIST:
-
-3) dynamic resizing
-4) solve skip frames
-
+ 
+1) dynamic resizing
+2) solve skip frames
+3) check distances
