@@ -1,6 +1,5 @@
 TODO LIST:
 
-1) paint patch black every 5  consecutive frames
-2) implement tracker
 3) dynamic resizing
+4) solve skip frames
 

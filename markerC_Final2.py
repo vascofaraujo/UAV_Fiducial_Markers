@@ -145,8 +145,8 @@ def rotationMatrixToEulerAngles(R): # This function converts rotation matrices t
         z = 0
     return np.array([x, y, z])
 
-def computeMarker(img, flagFound, bbox):
-    #bbox = (0,0,0,0)
+def computeMarker(img, flagFound):
+    bbox = (0,0,0,0)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
 
     candidates = []
@@ -273,9 +273,6 @@ def computeMarker(img, flagFound, bbox):
             str_attitude = "Marker Attitude r=%4.0f p=%4.0f y=%4.0f"%(math.degrees(roll_marker),math.degrees(pitch_marker),math.degrees(yaw_marker))
             cv.putText(img, str_attitude, (0, 200), font, 0.5, (255,0,0), 2, cv.LINE_AA)
 
-            str_flagFound = "Flag Found = " + str(flagFound)
-            cv.putText(img, str_flagFound, (0, 250), font, 0.5, (255,0,0), 2, cv.LINE_AA)
-
             data.append(marker_distance)
 
             flagFound = flagFound+1
@@ -284,10 +281,7 @@ def computeMarker(img, flagFound, bbox):
             marker_distance = 0
             print("error")
     if foundMarker == False:
-        if flagFound > 1:
-            flagFound = flagFound-1
-        else:
-            flagFound = 0
+        flagFound = 0
     return img, drawing, flagFound, bbox
 
 ########################################################################################
@@ -346,6 +340,11 @@ params = aruco.DetectorParameters_create()
 minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
 color = (0, 255, 0)
 
+#resize imagem
+scale_percent = 150 # percent of original size
+width = int(img.shape[1] * scale_percent / 100)
+height = int(img.shape[0] * scale_percent / 100)
+
 marker_distance = 0
 exit = False
 count3 = 0
@@ -358,36 +357,98 @@ bbox = (0,0,0,0)
 
 trackerIsInit = False
 countFrame = 0
+#numframe = 0
 while True:
-#for i in range(7): 
-    #img = img_markers[i]
+
     sucess, img = cap.read()
     if not(sucess):
         break
-    
-    scale_percent = 100
+    numframe = numframe + 1
+    """
+    if marker_distance > 400:
+    count3 += 1
+    if count3 == 30:
+        scale_percent = 150
+        count3 = 0
+        count2 = 0
+        count1 = 0
+    elif marker_distance >= 250 and marker_distance <= 400 :
+    count2 += 1
+    if count2 == 30:
+        scale_percent = 100
+        count3 = 0
+        count2 = 0
+        count1 = 0
+    elif marker_distance < 250:
+    count1 += 1
+    if count1 == 30:
+        scale_percent = 60
+        count3 = 0
+        count2 = 0
+        count1 = 0
+    """
+    scale_percent = 150
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
     
     img = cv.resize(img, dim)
 
+    print(flagFound)
+    enterFlag = False
     if flagFound > 1:
+        print(bbox)
+        enterFlag = True        
         x = bbox[0]
         y = bbox[1]
         w = bbox[2]
         h = bbox[3]
-
+        
         mask = np.full((img.shape[0], img.shape[1]), 0, dtype=np.uint8)
         cv.rectangle(mask, (x-5*w, y-5*h), (x+5*w, y+5*h), 255, -1)
         img = cv.bitwise_and(img, img, mask=mask)
 
-     
-    img, drawing, flagFound, bbox = computeMarker(img, flagFound, bbox)
+        tracker = cv.TrackerCSRT_create()
+        tracker.init(img, bbox)
+        trackerIsInit = True
 
+        flagFound = 0
+        countFrame = 0
+        str_id = "init tracker"
+        cv.putText(img, str_id, (20,20), fontFace=cv.FONT_HERSHEY_COMPLEX,
+                    fontScale=0.5, color=(255, 255, 255), thickness=10)
+
+
+    if trackerIsInit == True:
+        if countFrame == 20:
+            try:
+                img, drawing, flagFound, bbox = computeMarker(img, flagFound)
+                tracker = cv.TrackerCSRT_create()
+                tracker.init(img, bbox)
+                trackerIsInit = True
+                countFrame = 0
+            except:
+                print("error")
+        else:
+            ok, bbox_t = tracker.update(img)
+            if ok:
+                #Tracking succes
+                pt1 = (int(bbox_t[0]), int(bbox_t[1]))
+                pt2 = (int(bbox_t[0] + bbox_t[2]), int(bbox_t[1] + bbox_t[3]))
+                cv.rectangle(img, pt1, pt2, (0,0,255), 2)
+            else:
+                trackerIsInit = False   
+
+                img, drawing, flagFound, bbox = computeMarker(img, flagFound)
+
+    else:
+        if numframe == 5:
+            img, drawing, flagFound, bbox = computeMarker(img, flagFound)
+            numframe = 0
     cv.imshow("window", img)
     #cv.imshow('Contours', drawing)
 
+    countFrame = countFrame+1
     
     #cv.waitKey(0)
     #cv.destroyAllWindows()
@@ -396,33 +457,10 @@ while True:
     if cv.waitKey(1) & 0xFF == ord('q'):
         break
 
-
+        
 if data:
     plt.plot(data)
     plt.show()
     if Save:
         np.savetxt('Results_M3.txt', data, fmt='%f')
     
-"""
-if marker_distance > 400:
-count3 += 1
-if count3 == 30:
-    scale_percent = 150
-    count3 = 0
-    count2 = 0
-    count1 = 0
-elif marker_distance >= 250 and marker_distance <= 400 :
-count2 += 1
-if count2 == 30:
-    scale_percent = 100
-    count3 = 0
-    count2 = 0
-    count1 = 0
-elif marker_distance < 250:
-count1 += 1
-if count1 == 30:
-    scale_percent = 60
-    count3 = 0
-    count2 = 0
-    count1 = 0
-"""
