@@ -278,7 +278,10 @@ def computeMarker(img, flagFound, bbox):
 
             data.append(marker_distance)
 
-            flagFound = flagFound+1
+            if flagFound == 0:
+                flagFound = flagFound + 5
+            else:
+                flagFound = flagFound+1
             bbox = (x1, y1, w, h)
         except:
             marker_distance = 0
@@ -346,12 +349,6 @@ params = aruco.DetectorParameters_create()
 minDistSq = np.maximum(img.shape[0], img.shape[1]) * np.maximum(img.shape[0], img.shape[1])
 color = (0, 255, 0)
 
-marker_distance = 0
-exit = False
-count3 = 0
-count2 = 0
-count1 = 0
-
 numframe = 0
 flagFound = 0
 bbox = (0,0,0,0)
@@ -360,39 +357,55 @@ trackerIsInit = False
 countFrame = 0
 
 #CHANGE IS SCALE AND CAMERA MATRIX
-scale_percent = 150
-scale_camera = scale_percent / 100
-camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
-camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
-camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
-camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
 
+countFrame = 0
 while True:
     sucess, img = cap.read()
     if not(sucess):
         break
+    countFrame = countFrame + 1
+
+    scale_percent = 150
+    scale_camera = scale_percent / 100
+    camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
+    camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
+    camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
+    camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
+
     
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
     
-    img = cv.resize(img, dim)
+    imgR = cv.resize(img, dim)
 
-    if flagFound > 1:
+    if flagFound > 0:
         x = bbox[0]
         y = bbox[1]
         w = bbox[2]
         h = bbox[3]
 
-        mask = np.full((img.shape[0], img.shape[1]), 0, dtype=np.uint8)
-        cv.rectangle(mask, (x-w, y-h), (x+2*w, y+2*h), 255, -1)
-        img = cv.bitwise_and(img, img, mask=mask)
+        mask = np.full((imgR.shape[0], imgR.shape[1]), 0, dtype=np.uint8)
+        cv.rectangle(mask, (x-2*w, y-2*h), (x+3*w, y+3*h), 255, -1)
+        imgR = cv.bitwise_and(imgR, imgR, mask=mask)
 
+        scale_percent = 100
+        scale_camera = scale_percent / 100
+        camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
+        camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
+        camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
+        camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
+        width = int(img.shape[1] * scale_percent / 100)
+        height = int(img.shape[0] * scale_percent / 100)
+        dim = (width, height)
+        
+        imgR = cv.resize(imgR, dim)
      
-    img, drawing, flagFound, bbox = computeMarker(img, flagFound, bbox)
+    if countFrame % 5 == 0 or flagFound > 0:
+        imgR, drawing, flagFound, bbox = computeMarker(imgR, flagFound, bbox)
 
-    cv.imshow("window", img)
-    cv.imshow('Contours', drawing)
+        cv.imshow("window", imgR)
+        cv.imshow('Contours', drawing)
 
     
     #cv.waitKey(0)

@@ -54,13 +54,18 @@ R_Flip[2,2] = -1.0
 font = cv2.FONT_HERSHEY_SIMPLEX
 cap = cv2.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/AR_video_fast.mp4")
 
-
+scale_percent = 150
+scale_camera = scale_percent / 100
+camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
+camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
+camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
+camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
 while True:
     sucess, frame = cap.read()
     if not(sucess):
         break
   
-    scale_percent = 200
+    
     width = int(frame.shape[1] * scale_percent / 100)
     height = int(frame.shape[0] * scale_percent / 100)
     dim = (width, height)
