@@ -364,29 +364,7 @@ while True:
     if not(sucess):
         break
     numframe = numframe + 1
-    """
-    if marker_distance > 400:
-    count3 += 1
-    if count3 == 30:
-        scale_percent = 150
-        count3 = 0
-        count2 = 0
-        count1 = 0
-    elif marker_distance >= 250 and marker_distance <= 400 :
-    count2 += 1
-    if count2 == 30:
-        scale_percent = 100
-        count3 = 0
-        count2 = 0
-        count1 = 0
-    elif marker_distance < 250:
-    count1 += 1
-    if count1 == 30:
-        scale_percent = 60
-        count3 = 0
-        count2 = 0
-        count1 = 0
-    """
+
     scale_percent = 150
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)

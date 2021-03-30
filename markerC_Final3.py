@@ -257,9 +257,7 @@ def computeMarker(img, flagFound, bbox, camera_matrix):
         foundMarker = True
 
         #try:
-        print(camera_matrix)
         _, rvec, tvec = cv.solvePnP(object_points, corners, camera_matrix, camera_distortion, flags = cv.SOLVEPNP_IPPE_SQUARE)
-        print(tvec)
         marker_distance = np.linalg.norm(tvec)
         R_ct = np.matrix(cv.Rodrigues(rvec)[0]) # rotation matrix of camera wrt marker.
 
@@ -343,7 +341,7 @@ found = []
 
 #parameters initialization
 #img = img_markers[0]
-cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast.MOV")
+cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast_short.MOV")
 
 suc, img = cap.read()
 
@@ -386,7 +384,7 @@ while True:
         h = bbox[3]
 
         mask = np.full((img.shape[0], img.shape[1]), 0, dtype=np.uint8)
-        cv.rectangle(mask, (x-2*w, y-2*h), (x+3*w, y+3*h), 255, -1)
+        cv.rectangle(mask, (x-w, y-h), (x+2*w, y+2*h), 255, -1)
         img = cv.bitwise_and(img, img, mask=mask)
         
         
@@ -394,7 +392,7 @@ while True:
         img, drawing, flagFound, bbox = computeMarker(img, flagFound, bbox, camera_matrix)
 
         cv.imshow("window", img)
-        cv.imshow('Contours', drawing)
+        #cv.imshow('Contours', drawing)
     
     #Quebrar se 'q' for premido
     if cv.waitKey(1) & 0xFF == ord('q'):

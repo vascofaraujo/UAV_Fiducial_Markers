@@ -342,7 +342,7 @@ found = []
 
 #parameters initialization
 #img = img_markers[0]
-cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast_short.MOV")
+cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fastq.MOV")
 
 suc, img = cap.read()
 
