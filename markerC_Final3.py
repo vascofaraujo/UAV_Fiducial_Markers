@@ -145,7 +145,7 @@ def rotationMatrixToEulerAngles(R): # This function converts rotation matrices t
         z = 0
     return np.array([x, y, z])
 
-def computeMarker(img, flagFound, bbox):
+def computeMarker(img, flagFound, bbox, camera_matrix):
     #bbox = (0,0,0,0)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY) 
 
@@ -256,36 +256,37 @@ def computeMarker(img, flagFound, bbox):
         cv.rectangle(img, (x1,y1), (x1+w,y1+h), (0,255,0),10)
         foundMarker = True
 
-        try:
+        #try:
+        print(camera_matrix)
+        _, rvec, tvec = cv.solvePnP(object_points, corners, camera_matrix, camera_distortion, flags = cv.SOLVEPNP_IPPE_SQUARE)
+        print(tvec)
+        marker_distance = np.linalg.norm(tvec)
+        R_ct = np.matrix(cv.Rodrigues(rvec)[0]) # rotation matrix of camera wrt marker.
 
-            _, rvec, tvec = cv.solvePnP(object_points, corners, camera_matrix, camera_distortion, flags = cv.SOLVEPNP_IPPE_SQUARE)
-            marker_distance = np.linalg.norm(tvec)
-            R_ct = np.matrix(cv.Rodrigues(rvec)[0]) # rotation matrix of camera wrt marker.
+        R_tc = R_ct.T # rotation matrix of marker wrt camera
+        roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_Flip*R_tc)
+        str_position = "Marker Position: x = %4.0f y = %4.0f z = %4.0f"%(tvec[0], tvec[1], tvec[2])
+        cv.putText(img, str_position, (0, 100), font, 0.5, (255,0,0), 2, cv.LINE_AA)
 
-            R_tc = R_ct.T # rotation matrix of marker wrt camera
-            roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_Flip*R_tc)
-            str_position = "Marker Position: x = %4.0f y = %4.0f z = %4.0f"%(tvec[0], tvec[1], tvec[2])
-            cv.putText(img, str_position, (0, 100), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        str_distance = "Marker Distance: d = %4.0f"%(marker_distance)
+        cv.putText(img, str_distance, (0, 150), font, 0.5, (255,0,0), 2, cv.LINE_AA)
 
-            str_distance = "Marker Distance: d = %4.0f"%(marker_distance)
-            cv.putText(img, str_distance, (0, 150), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        str_attitude = "Marker Attitude r=%4.0f p=%4.0f y=%4.0f"%(math.degrees(roll_marker),math.degrees(pitch_marker),math.degrees(yaw_marker))
+        cv.putText(img, str_attitude, (0, 200), font, 0.5, (255,0,0), 2, cv.LINE_AA)
 
-            str_attitude = "Marker Attitude r=%4.0f p=%4.0f y=%4.0f"%(math.degrees(roll_marker),math.degrees(pitch_marker),math.degrees(yaw_marker))
-            cv.putText(img, str_attitude, (0, 200), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        str_flagFound = "Flag Found = " + str(flagFound)
+        cv.putText(img, str_flagFound, (0, 250), font, 0.5, (255,0,0), 2, cv.LINE_AA)
 
-            str_flagFound = "Flag Found = " + str(flagFound)
-            cv.putText(img, str_flagFound, (0, 250), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        data.append(marker_distance)
 
-            data.append(marker_distance)
-
-            if flagFound == 0:
-                flagFound = flagFound + 5
-            else:
-                flagFound = flagFound+1
-            bbox = (x1, y1, w, h)
-        except:
-            marker_distance = 0
-            print("error")
+        if flagFound == 0:
+            flagFound = flagFound + 5
+        else:
+            flagFound = flagFound+1
+        bbox = (x1, y1, w, h)
+        #except:
+        #marker_distance = 0
+        #print("error")
     if foundMarker == False:
         if flagFound > 1:
             flagFound = flagFound-1
@@ -300,6 +301,7 @@ marker_size = 11
 #calib_path = 'D:/Desktop/IST/UAV/Visao/'
 #Vasco 
 calib_path = 'C:/totalcmd/IST/UAV-ART/markers/'
+camera_matrix_original = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
 camera_matrix = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
 camera_distortion = np.loadtxt(calib_path+'Camera_Distortion_iPhone.txt', delimiter =',')
 
@@ -357,27 +359,25 @@ trackerIsInit = False
 countFrame = 0
 
 #CHANGE IS SCALE AND CAMERA MATRIX
+scale_percent = 150
+scale_camera = scale_percent / 100
 
+camera_matrix[0][0] = camera_matrix_original[0][0] * scale_camera
+camera_matrix[0][2] = camera_matrix_original[0][2] * scale_camera
+camera_matrix[1][1] = camera_matrix_original[1][1] * scale_camera
+camera_matrix[1][2] = camera_matrix_original[1][2] * scale_camera
 countFrame = 0
 while True:
     sucess, img = cap.read()
     if not(sucess):
         break
     countFrame = countFrame + 1
-
-    scale_percent = 150
-    scale_camera = scale_percent / 100
-    camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
-    camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
-    camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
-    camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
-
-    
+        
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
-    
-    imgR = cv.resize(img, dim)
+
+    img = cv.resize(img, dim)
 
     if flagFound > 0:
         x = bbox[0]
@@ -385,31 +385,16 @@ while True:
         w = bbox[2]
         h = bbox[3]
 
-        mask = np.full((imgR.shape[0], imgR.shape[1]), 0, dtype=np.uint8)
+        mask = np.full((img.shape[0], img.shape[1]), 0, dtype=np.uint8)
         cv.rectangle(mask, (x-2*w, y-2*h), (x+3*w, y+3*h), 255, -1)
-        imgR = cv.bitwise_and(imgR, imgR, mask=mask)
-
-        scale_percent = 100
-        scale_camera = scale_percent / 100
-        camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
-        camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
-        camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
-        camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
-        width = int(img.shape[1] * scale_percent / 100)
-        height = int(img.shape[0] * scale_percent / 100)
-        dim = (width, height)
+        img = cv.bitwise_and(img, img, mask=mask)
         
-        imgR = cv.resize(imgR, dim)
-     
-    if countFrame % 5 == 0 or flagFound > 0:
-        imgR, drawing, flagFound, bbox = computeMarker(imgR, flagFound, bbox)
+        
+    if countFrame % 10 == 0 or flagFound > 0:
+        img, drawing, flagFound, bbox = computeMarker(img, flagFound, bbox, camera_matrix)
 
-        cv.imshow("window", imgR)
+        cv.imshow("window", img)
         cv.imshow('Contours', drawing)
-
-    
-    #cv.waitKey(0)
-    #cv.destroyAllWindows()
     
     #Quebrar se 'q' for premido
     if cv.waitKey(1) & 0xFF == ord('q'):

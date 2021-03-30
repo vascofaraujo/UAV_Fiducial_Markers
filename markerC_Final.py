@@ -278,7 +278,10 @@ def computeMarker(img, flagFound, bbox):
 
             data.append(marker_distance)
 
-            flagFound = flagFound+1
+            if flagFound == 0:
+                flagFound = flagFound + 5
+            else:
+                flagFound = flagFound+1
             bbox = (x1, y1, w, h)
         except:
             marker_distance = 0
@@ -290,6 +293,7 @@ def computeMarker(img, flagFound, bbox):
             flagFound = 0
     return img, drawing, flagFound, bbox
 
+########################################################################################
 ########################################################################################
 #Começar a captura
 marker_size = 11
@@ -338,7 +342,7 @@ found = []
 
 #parameters initialization
 #img = img_markers[0]
-cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast.MOV")
+cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast_short.MOV")
 
 suc, img = cap.read()
 
