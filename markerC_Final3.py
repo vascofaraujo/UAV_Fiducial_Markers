@@ -264,16 +264,16 @@ def computeMarker(img, flagFound, bbox, camera_matrix):
         R_tc = R_ct.T # rotation matrix of marker wrt camera
         roll_marker, pitch_marker, yaw_marker = rotationMatrixToEulerAngles(R_Flip*R_tc)
         str_position = "Marker Position: x = %4.0f y = %4.0f z = %4.0f"%(tvec[0], tvec[1], tvec[2])
-        cv.putText(img, str_position, (0, 100), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        cv.putText(img, str_position, (0, 100), font, 1.5, (255,0,0), 2, cv.LINE_AA)
 
         str_distance = "Marker Distance: d = %4.0f"%(marker_distance)
-        cv.putText(img, str_distance, (0, 150), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        cv.putText(img, str_distance, (0, 150), font, 1.5, (255,0,0), 2, cv.LINE_AA)
 
         str_attitude = "Marker Attitude r=%4.0f p=%4.0f y=%4.0f"%(math.degrees(roll_marker),math.degrees(pitch_marker),math.degrees(yaw_marker))
-        cv.putText(img, str_attitude, (0, 200), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        cv.putText(img, str_attitude, (0, 200), font, 1.5, (255,0,0), 2, cv.LINE_AA)
 
         str_flagFound = "Flag Found = " + str(flagFound)
-        cv.putText(img, str_flagFound, (0, 250), font, 0.5, (255,0,0), 2, cv.LINE_AA)
+        cv.putText(img, str_flagFound, (0, 250), font, 1.5, (255,0,0), 2, cv.LINE_AA)
 
         data.append(marker_distance)
 
@@ -298,7 +298,7 @@ marker_size = 11
 #Santi
 #calib_path = 'D:/Desktop/IST/UAV/Visao/'
 #Vasco 
-calib_path = 'C:/totalcmd/IST/UAV-ART/markers/'
+calib_path = 'C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/'
 camera_matrix_original = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
 camera_matrix = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
 camera_distortion = np.loadtxt(calib_path+'Camera_Distortion_iPhone.txt', delimiter =',')
@@ -342,8 +342,14 @@ found = []
 #parameters initialization
 #img = img_markers[0]
 cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast_short.MOV")
-
 suc, img = cap.read()
+scale_percent = 150
+width = int(img.shape[1] * scale_percent / 100)
+height = int(img.shape[0] * scale_percent / 100)
+
+writer= cv.VideoWriter('VideoInsta.avi', cv.VideoWriter_fourcc(*'XVID'), 20, (width,height))
+
+
 
 params = aruco.DetectorParameters_create()
 color = (0, 255, 0)
@@ -392,11 +398,15 @@ while True:
 
         cv.imshow("window", img)
         #cv.imshow('Contours', drawing)
+
+        writer.write(img)
+
     
     #Quebrar se 'q' for premido
     if cv.waitKey(1) & 0xFF == ord('q'):
         break
 
+writer.release()
 
 if data:
     plt.plot(data)
