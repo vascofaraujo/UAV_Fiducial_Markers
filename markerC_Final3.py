@@ -409,8 +409,12 @@ while True:
 writer.release()
 
 if data:
-    plt.plot(data)
-    plt.show()
+    plt.plot(data)    
+    plt.xlabel('Nº de frames')
+    plt.ylabel('Distância [cm]')
+    plt.title('Distãncia da câmara ao marcador fiduciário')
+    plt.show()  
+
     if Save:
         np.savetxt('Results_M3.txt', data, fmt='%f')
     

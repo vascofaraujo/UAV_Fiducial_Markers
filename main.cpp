@@ -1,18 +1,12 @@
 #include "opencv2\opencv.hpp"
 using namespace cv;
 
-#include <time.h>
-#include <ctime>
-#include <opencv2/aruco.hpp>
-
-
 
 cv::Mat compute_marker(cv::Mat img) 
 {
 	cv::Mat threshImage; 
 	std::vector<std::vector<cv::Point> > contours;
 	double cnt_len;
-	cv::aruco::DetectorParameters* params = cv::aruco::DetectorParameters::create();
 	adaptiveThreshold(img, threshImage, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 5, 3);
 
 	findContours(threshImage, contours, RETR_LIST, CHAIN_APPROX_NONE);
@@ -31,7 +25,10 @@ cv::Mat compute_marker(cv::Mat img)
 		std::vector< Point > approxCurve;
 		cnt_len = arcLength(contours[i], true);
 		
-		//if (approxCurve.size() != 4 || !isContourConvex(approxCurve)) continue;
+		if (approxCurve.size() == 4 && isContourConvex(approxCurve))
+		{
+			std::cout << "sucess";
+		}
 		//std::cout << "ENCONTREI CONVEX E 4 LADOS \n";
 		//std::cout << "SIZE:" << contours[i].size() << "\n";
 		//if (approxCurve.size() == 4 && isContourConvex(approxCurve)) {
@@ -39,16 +36,15 @@ cv::Mat compute_marker(cv::Mat img)
 			//std::cout << "SIZE2:" << cnt_len << "\n";
 			//std::cout << contourArea(contours[i]) << "\n";
 			//std::cout << "COL:" << img.cols << "ROWS" << img.rows << "\n";
-			if (contourArea(contours[i]) > 80 && contourArea(contours[i]) < 0.2 * img.cols * img.rows) {
+			//if (contourArea(contours[i]) > 80 && contourArea(contours[i]) < 0.2 * img.cols * img.rows) {
 				//approxPolyDP(contours[i], approxCurve, double(cnt_len * params->polygonalApproxAccuracyRate), true);
 				//std::cout << "SIZE2:" << params->polygonalApproxAccuracyRate << "\n";
-				approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.03, true);
-				if (approxCurve.size() == 4 && isContourConvex(approxCurve)) {
-					drawContours(drawing, contours, (int)i, (255, 255, 255), 2, LINE_8);
-				}
-				std::cout << approxCurve << "ENCONTREI \n";
+		//		approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.03, true);
+			//	if (approxCurve.size() == 4 && isContourConvex(approxCurve)) {
+				//	drawContours(drawing, contours, (int)i, (255, 255, 255), 2, LINE_8);
+				//}
+			//	std::cout << approxCurve << "ENCONTREI \n";
 
-			}
 		}
 		//}
 
@@ -73,10 +69,10 @@ cv::Mat compute_marker(cv::Mat img)
 
 
 
-void main()
+int main()
 {
 	//VideoCapture cap(0);
-	VideoCapture cap("D:/Desktop/Python/UAV_markers_test/New_Images/C_fast_short.MOV");
+	VideoCapture cap("C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/New_Images/C_fast_short.MOV");
 	cv::Mat img, img_original;
 	cv::Size sz = img.size();
 	int imageWidth = sz.width;
@@ -89,9 +85,9 @@ void main()
 	while (cap.read(img))
 	{
 		img_original = img;
-		cvtColor(img, img, CV_BGR2GRAY);
+		cv::cvtColor(img, img, COLOR_BGR2GRAY);
 		
-		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, CV_INTER_LINEAR);
+		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, INTER_LINEAR);
 		
 		img = compute_marker(img);
 
@@ -104,5 +100,6 @@ void main()
 		}
 
 	}
+	return 0;
 
 }
