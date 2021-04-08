@@ -306,13 +306,6 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 	cv::imshow("Drawing", drawing);
 
 
-	//waitKey(0);
-
-
-
-
-		
-	
 
 	return original;
 
@@ -329,7 +322,7 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 void main()
 {
 	//VideoCapture cap(0);
-	VideoCapture cap("D:/Desktop/Python/UAV_markers_test/New_Images/C_fast_short.MOV");
+	VideoCapture cap("C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/New_Images/C_fast.MOV");
 	cv::Mat img, img_original;
 	cv::Size sz = img.size();
 	int imageWidth = sz.width;
@@ -344,11 +337,11 @@ void main()
 		
 		
 		
-		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, CV_INTER_LINEAR);
+		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, cv::INTER_LINEAR);
 
 		img_original = img;
 
-		cvtColor(img, img, CV_BGR2GRAY);
+		cvtColor(img, img, COLOR_BGR2GRAY);
 		
 		img = compute_marker(img, img_original);
 

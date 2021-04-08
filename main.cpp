@@ -87,9 +87,9 @@ int main()
 		img_original = img;
 		cv::cvtColor(img, img, COLOR_BGR2GRAY);
 		
-		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, INTER_LINEAR);
+		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, cv::INTER_LINEAR);
 		
-		img = compute_marker(img);
+		/*img = compute_marker(img);*/
 
 		cv::imshow("Window", img);
 
