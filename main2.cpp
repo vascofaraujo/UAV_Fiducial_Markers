@@ -5,6 +5,8 @@ using namespace cv;
 #include <ctime>
 #include <math.h>
 
+using namespace std;
+
 
 
 cv::Mat four_point_transform(cv::Mat gray, std::vector< Point2f > Candidate) {
@@ -50,7 +52,7 @@ bool compare_distance(std::vector< Point > cnt) {
 	maximum_dist = max(maximum_dist, p34);
 	maximum_dist = max(maximum_dist, p41);
 
-	if (minimum_dist / maximum_dist > 0.4)
+	if (minimum_dist / maximum_dist > 0.7)
 		result = true;
 	else
 		result = false;
@@ -74,17 +76,14 @@ std::vector< std::vector< Point2f > > match_warped(std::vector< std::vector< Poi
 		sz = patch.size();
 		patchWidth = sz.width;
 		patchHeight = sz.height;
-		//std::cout << "NEW PATCH" << patch << "\n";
+
 		white = 0;
 		black = 1;
 		npixel = 0;
-		for (int h = round(patchHeight*0.4); h < round(patchHeight * 0.6); h++) {
-			for (int w = round(patchWidth * 0.4); w < round(patchWidth * 0.6); w++) {
-				//std::cout << "W:" << w << " WIDTH:" << patchWidth  << "\n H:" << h << "HEIGHT" << patchHeight <<"\n";
-				//std::cout << "NUMPIXEIS" << npixel << "\n";
+		for (int h = round(patchHeight*0.40); h < round(patchHeight * 0.60); h++) {
+			for (int w = round(patchWidth * 0.40); w < round(patchWidth * 0.60); w++) {			
 				npixel++;
 				pixel = warpedCandidates[i].at<uchar>(h, w);
-				//std::cout << "Pixel!" << pixel <<"\n";
 				if (pixel == 255)
 					white++;
 				else black++;
@@ -92,10 +91,10 @@ std::vector< std::vector< Point2f > > match_warped(std::vector< std::vector< Poi
 		}
 
 
-		if (float(black) / float(white) < 0.05) {
-			//std::cout << "Passei a primeira condição!\n";
+		if (float(black) / float(white) < 0.1) {
 			black = 0;
-			white = 0;
+			white = 1;
+			
 			for (int w = 0; w < patchWidth; w++) {
 				for (int h = 0; h < patchHeight; h++) {
 					pixel = patch.at<char>(h, w);
@@ -106,11 +105,9 @@ std::vector< std::vector< Point2f > > match_warped(std::vector< std::vector< Poi
 			}
 			if (black > white)
 			{
-				//std::cout << "encontrei\n";
 				imshow("aq", patch);
 				markers.push_back(candidates[i]);
 			}
-
 
 		}
 	
@@ -132,7 +129,7 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 	double cnt_len;
 	std::vector< std::vector< Point2f > > candidates, biggerCandidates;
 	std::vector< std::vector< Point > > contoursOut, biggerContours;
-	//cv::aruco::DetectorParameters* params = cv::aruco::DetectorParameters::create();
+
 	adaptiveThreshold(img, threshImage, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 5, 3);
 
 	findContours(threshImage, contours, RETR_LIST, CHAIN_APPROX_NONE);
@@ -147,12 +144,8 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 
 
 			approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.03, true);
-			//std::cout << "SIZE2:" << cnt_len << "\n";
-			//std::cout << contourArea(contours[i]) << "\n";
-			//std::cout << "COL:" << img.cols << "ROWS" << img.rows << "\n";
-			if (contourArea(approxCurve) > 80 && contourArea(approxCurve) < 0.2 * img.cols * img.rows) {
-				//approxPolyDP(contours[i], approxCurve, double(cnt_len * params->polygonalApproxAccuracyRate), true);
-				//std::cout << "SIZE2:" << params->polygonalApproxAccuracyRate << "\n";
+			
+			if (contourArea(approxCurve) > 8 && contourArea(approxCurve) < 0.2 * img.cols * img.rows) {
 				
 				if (approxCurve.size() == 4 && isContourConvex(approxCurve)) {
 					issquare = compare_distance(approxCurve);
@@ -166,11 +159,9 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 					candidates.push_back(currentCandidate);
 					contoursOut.push_back(contours[i]);
 				}
-				//std::cout << approxCurve << "ENCONTREI \n";
 
 			}
 		}
-		//}
 	for (unsigned int i = 0; i < candidates.size(); i++) {
 		double dx1 = candidates[i][1].x - candidates[i][0].x;
 		double dy1 = candidates[i][1].y - candidates[i][0].y;
@@ -323,7 +314,7 @@ void main()
 {
 	//VideoCapture cap(0);
 	VideoCapture cap("C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/New_Images/C_fast.MOV");
-	cv::Mat img, img_original;
+	cv::Mat img, img_original, camera_matrix;
 	cv::Size sz = img.size();
 	int imageWidth = sz.width;
 	int imageHeight = sz.height;
@@ -332,10 +323,15 @@ void main()
 	height = int(imageHeight * scale_percent / 100);
 	bool bSuccess;
 
+	//Read camera matrix file
+	/*
+	ifstream f("C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/Camera_Matrix_iPhone.txt");
+	f >> camera_matrix;
+
+	std::cout << f;*/
+	
 	while (cap.read(img))
 	{
-		
-		
 		
 		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, cv::INTER_LINEAR);
 
