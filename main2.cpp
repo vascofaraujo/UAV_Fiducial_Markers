@@ -1,13 +1,15 @@
 #include "opencv2\opencv.hpp"
 using namespace cv;
 
-#include <time.h>
-#include <ctime>
 #include <math.h>
+#include <fstream>
 
+#include <iostream>
 using namespace std;
 
-
+float camera_matrix[3][3] = { {1.57931456e+03, 0.00000000e+00, 7.37574015e+02},
+								{0.00000000e+00, 1.58393379e+03, 9.31342862e+02},
+								{0.00000000e+00, 0.00000000e+00, 1.00000000e+00} };
 
 cv::Mat four_point_transform(cv::Mat gray, std::vector< Point2f > Candidate) {
 	double widthA, widthB, maxWidth, heightA, heightB, maxHeight;
@@ -52,7 +54,7 @@ bool compare_distance(std::vector< Point > cnt) {
 	maximum_dist = max(maximum_dist, p34);
 	maximum_dist = max(maximum_dist, p41);
 
-	if (minimum_dist / maximum_dist > 0.7)
+	if (minimum_dist / maximum_dist > 0.9)
 		result = true;
 	else
 		result = false;
@@ -121,7 +123,7 @@ std::vector< std::vector< Point2f > > match_warped(std::vector< std::vector< Poi
 
 
 
-cv::Mat compute_marker(cv::Mat img, cv::Mat original) 
+cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 {
 	cv::Mat threshImage, warped;
 	std::vector<std::vector<cv::Point> > contours;
@@ -130,11 +132,12 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 	std::vector< std::vector< Point2f > > candidates, biggerCandidates;
 	std::vector< std::vector< Point > > contoursOut, biggerContours;
 
+
 	adaptiveThreshold(img, threshImage, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 5, 3);
 
 	findContours(threshImage, contours, RETR_LIST, CHAIN_APPROX_NONE);
-	Mat drawing = Mat::zeros(img.size(), CV_8UC3);
 
+	Mat drawing = Mat::zeros(img.size(), CV_8UC3);
 
 
 	for (unsigned int i = 0; i < contours.size(); i++) {
@@ -143,25 +146,26 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 		cnt_len = arcLength(contours[i], true);
 
 
-			approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.03, true);
-			
-			if (contourArea(approxCurve) > 8 && contourArea(approxCurve) < 0.2 * img.cols * img.rows) {
-				
-				if (approxCurve.size() == 4 && isContourConvex(approxCurve)) {
-					issquare = compare_distance(approxCurve);
-					if (!(issquare)) continue;
+		approxPolyDP(contours[i], approxCurve, double(contours[i].size()) * 0.03, true);
 
-					std::vector< Point2f > currentCandidate;
-					currentCandidate.resize(4);
-					for (int j = 0; j < 4; j++) {
-						currentCandidate[j] = Point2f((float)approxCurve[j].x, (float)approxCurve[j].y);
-					}
-					candidates.push_back(currentCandidate);
-					contoursOut.push_back(contours[i]);
+		if (contourArea(approxCurve) > 20 && contourArea(approxCurve) < 0.2 * img.cols * img.rows) {
+
+			if (approxCurve.size() == 4 && isContourConvex(approxCurve)) {
+				issquare = compare_distance(approxCurve);
+				if (!(issquare)) continue;
+
+				std::vector< Point2f > currentCandidate;
+				currentCandidate.resize(4);
+				for (int j = 0; j < 4; j++) {
+					currentCandidate[j] = Point2f((float)approxCurve[j].x, (float)approxCurve[j].y);
 				}
-
+				candidates.push_back(currentCandidate);
+				contoursOut.push_back(contours[i]);
 			}
 		}
+	}
+	std::vector <cv::Mat> warpedCandidates;
+
 	for (unsigned int i = 0; i < candidates.size(); i++) {
 		double dx1 = candidates[i][1].x - candidates[i][0].x;
 		double dy1 = candidates[i][1].y - candidates[i][0].y;
@@ -172,131 +176,28 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 		if (crossProduct < 0.0) { // not clockwise direction
 			swap(candidates[i][1], candidates[i][3]);
 		}
-	}
 
-	
-	std::cout << "Before grouping: " << candidates.size() << "\n";
-	/*
-	std::vector<int> candGroup;
-	candGroup.resize(candidates.size(), -1);
-	std::vector< std::vector<unsigned int> > groupedCandidates;
-	//std::cout << "candGroup: " << candGroup[0] << "\n";
-
-	for (unsigned int i = 0; i < candidates.size(); i++) {
-		for (unsigned int j = i + 1; j < candidates.size(); j++) {
-
-			int minimumPerimeter = min((int)contours[i].size(), (int)contours[j].size());
-
-			// fc is the first corner considered on one of the markers, 4 combinations are possible
-			for (int fc = 0; fc < 4; fc++) {
-				double distSq = 0;
-				for (int c = 0; c < 4; c++) {
-					// modC is the corner considering first corner is fc
-					int modC = (c + fc) % 4;
-					distSq += (candidates[i][modC].x - candidates[j][c].x) *
-						(candidates[i][modC].x - candidates[j][c].x) +
-						(candidates[i][modC].y - candidates[j][c].y) *
-						(candidates[i][modC].y - candidates[j][c].y);
-				}
-				distSq /= 4.;
-
-				// if mean square distance is too low, remove the smaller one of the two markers
-				double minMarkerDistancePixels = double(minimumPerimeter) * 0.05;
-				if (distSq < minMarkerDistancePixels * minMarkerDistancePixels) {
-
-					// i and j are not related to a group
-					if (candGroup[i] < 0 && candGroup[j] < 0) {
-						// mark candidates with their corresponding group number
-						candGroup[i] = candGroup[j] = (int)groupedCandidates.size();
-
-						// create group
-						std::vector<unsigned int> grouped;
-						grouped.push_back(i);
-						grouped.push_back(j);
-						groupedCandidates.push_back(grouped);
-					}
-					// i is related to a group
-					else if (candGroup[i] > -1 && candGroup[j] == -1) {
-						int group = candGroup[i];
-						candGroup[j] = group;
-
-						// add to group
-						groupedCandidates[group].push_back(j);
-					}
-					// j is related to a group
-					else if (candGroup[j] > -1 && candGroup[i] == -1) {
-						int group = candGroup[j];
-						candGroup[i] = group;
-
-						// add to group
-						groupedCandidates[group].push_back(i);
-					}
-				}
-			}
-		}
-	}
-	
-	std::cout << "After grouping: " << groupedCandidates.size() << "\n";
-
-	
-
-	for (unsigned int i = 0; i < groupedCandidates.size(); i++) {
-		int smallerIdx = groupedCandidates[i][0];
-		int biggerIdx = -1;
-
-		// evaluate group elements
-		for (unsigned int j = 1; j < groupedCandidates[i].size(); j++) {
-			size_t currPerim = contours[groupedCandidates[i][j]].size();
-
-			// check if current contour is bigger
-			if (biggerIdx < 0)
-				biggerIdx = groupedCandidates[i][j];
-			else if (currPerim >= contours[biggerIdx].size())
-				biggerIdx = groupedCandidates[i][j];
-
-			// check if current contour is smaller
-			if (currPerim < contours[smallerIdx].size())
-				smallerIdx = groupedCandidates[i][j];
-		}
-		// add contours und candidates
-		if (biggerIdx > -1) {
-
-			biggerCandidates.push_back(candidates[biggerIdx]);
-			biggerContours.push_back(contoursOut[biggerIdx]);
-
-			
-		}
-	}
-
-	std::cout << "After joining: " << biggerCandidates.size() << "\n";
-	*/
-	std::vector <cv::Mat> warpedCandidates ;
-
-	//biggerCandidates = candidates;
-
-
-	for (unsigned int i = 0; i < candidates.size(); i++) {
 		drawContours(drawing, contoursOut, (int)i, (255, 255, 255), 2, LINE_8);
 		warped = four_point_transform(img, candidates[i]);
 		threshold(warped, warped, 125, 255, THRESH_BINARY | THRESH_OTSU);
 		warpedCandidates.push_back(warped);
-		//cv::imshow("warped", warped);
-		//waitKey(0);
-		}
+	}
+
 	markers = match_warped(candidates, img, warpedCandidates);
+
 	cv::Rect rect_aux;
-	//std::cout <<  "ENCONTREI \n";
+
 	for (unsigned int i = 0; i < markers.size(); i++)
 	{
 		rect_aux = boundingRect(markers[i]);
 		rectangle(original, rect_aux, 255, 5);
-	}
 
-	
+
+	}
 
 	cv::imshow("Drawing", drawing);
 
-
+	cout << camera_matrix[1][1];
 
 	return original;
 
@@ -304,17 +205,11 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 
 
 
-
-
-
-
-
-
 void main()
 {
 	//VideoCapture cap(0);
 	VideoCapture cap("C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/New_Images/C_fast.MOV");
-	cv::Mat img, img_original, camera_matrix;
+	cv::Mat img, img_original;
 	cv::Size sz = img.size();
 	int imageWidth = sz.width;
 	int imageHeight = sz.height;
@@ -323,17 +218,12 @@ void main()
 	height = int(imageHeight * scale_percent / 100);
 	bool bSuccess;
 
-	//Read camera matrix file
-	/*
-	ifstream f("C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/Camera_Matrix_iPhone.txt");
-	f >> camera_matrix;
 
-	std::cout << f;*/
 	
 	while (cap.read(img))
 	{
 		
-		cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, cv::INTER_LINEAR);
+		//cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, cv::INTER_LINEAR);
 
 		img_original = img;
 
@@ -348,7 +238,5 @@ void main()
 			std::cout << "Esc key is pressed by user. Stopping the video\n";
 			break;
 		}
-
 	}
-
 }
