@@ -10,71 +10,20 @@ using namespace cv;
 #include <sys/stat.h>
 #include <chrono>
 using namespace std;
-/*
-int main() {
 
-    //Open image file to read from
-    char imgPath[] = "./AR6.jpeg";
-    ifstream fileImg(imgPath, ios::binary);
-    fileImg.seekg(0, std::ios::end);
-    int bufferLength = fileImg.tellg();
-    fileImg.seekg(0, std::ios::beg);
+union pipe
+{
+    uint8_t image[1440] [1920] [3];
+    uint8_t data [1440 * 1920 * 3];
+} raw;
 
-    if (fileImg.fail())
-    {
-        cout << "Failed to read image" << endl;
-        cin.get();
-        return -1;
-    }
-
-    //Read image data into char array
-    char *buffer = new char[bufferLength];
-    fileImg.read(buffer, bufferLength);
-
-    //Decode data into Mat 
-    cv::Mat matImg;
-    matImg = cv::imdecode(cv::Mat(1, bufferLength, CV_8UC1, buffer), cv::IMREAD_UNCHANGED);
-
-    //Create Window and display it
-    if (!(matImg.empty()))
-    {
-        imshow("Image from Char Array", matImg);
-    }
-    cv::waitKey(0);
-
-    delete[] buffer;
-
-    return 0;
-}
-*/
-int main(int argc, char *argv[]) {
-    cout << "Heloooooooooooooooo";
-    const char *fifo_name = "fifo";
-    std::ifstream f;
-    for(;;) { // Wait till the named pipe is available.
-        f.open(fifo_name, std::ios_base::in);
-        if(f.is_open())
-            break;
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-    }
-    /*ifstream f(fifo_name);*/
-    string line;
-    getline(f, line);
-    auto data_size = stoi(line);
-
-    char *buf = new char[data_size];
-    f.read(buf, data_size);
-    Mat matimg;
-    //cout << Mat(data);
-    matimg = imdecode(Mat(1, data_size, CV_8UC1, buf), IMREAD_UNCHANGED);
-    cout << buf;
-
-     if (!(matimg.empty()))
-    {
-        imshow("display", matimg);
-    }
+int main(){
+    // Reads in the raw data
+    fread(&raw.image, 1, sizeof(raw.data), stdin);
+    Mat image;
+    // Rebuild raw data to cv::Mat
+    image = Mat(1440, 1920, CV_8UC3, *raw.image);
+    imshow("window", image);
     waitKey(0);
-    delete[] buf;
-
     return 0;
 }
