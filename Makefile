@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/vasco/Desktop/CODE/UAV_Fiducial_Markers
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,44 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named word
+# Target rules for targets named teste
 
 # Build rule for target.
-word: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 word
-.PHONY : word
+teste: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 teste
+.PHONY : teste
 
 # fast build rule for target.
-word/fast:
-	$(MAKE) -f CMakeFiles/word.dir/build.make CMakeFiles/word.dir/build
-.PHONY : word/fast
+teste/fast:
+	$(MAKE) -f CMakeFiles/teste.dir/build.make CMakeFiles/teste.dir/build
+.PHONY : teste/fast
 
-main2.o: main2.cpp.o
+teste.o: teste.cpp.o
 
-.PHONY : main2.o
+.PHONY : teste.o
 
 # target to build an object file
-main2.cpp.o:
-	$(MAKE) -f CMakeFiles/word.dir/build.make CMakeFiles/word.dir/main2.cpp.o
-.PHONY : main2.cpp.o
+teste.cpp.o:
+	$(MAKE) -f CMakeFiles/teste.dir/build.make CMakeFiles/teste.dir/teste.cpp.o
+.PHONY : teste.cpp.o
 
-main2.i: main2.cpp.i
+teste.i: teste.cpp.i
 
-.PHONY : main2.i
+.PHONY : teste.i
 
 # target to preprocess a source file
-main2.cpp.i:
-	$(MAKE) -f CMakeFiles/word.dir/build.make CMakeFiles/word.dir/main2.cpp.i
-.PHONY : main2.cpp.i
+teste.cpp.i:
+	$(MAKE) -f CMakeFiles/teste.dir/build.make CMakeFiles/teste.dir/teste.cpp.i
+.PHONY : teste.cpp.i
 
-main2.s: main2.cpp.s
+teste.s: teste.cpp.s
 
-.PHONY : main2.s
+.PHONY : teste.s
 
 # target to generate assembly for a file
-main2.cpp.s:
-	$(MAKE) -f CMakeFiles/word.dir/build.make CMakeFiles/word.dir/main2.cpp.s
-.PHONY : main2.cpp.s
+teste.cpp.s:
+	$(MAKE) -f CMakeFiles/teste.dir/build.make CMakeFiles/teste.dir/teste.cpp.s
+.PHONY : teste.cpp.s
 
 # Help Target
 help:
@@ -156,12 +156,12 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... word"
-	@echo "... main2.o"
-	@echo "... main2.i"
-	@echo "... main2.s"
+	@echo "... edit_cache"
+	@echo "... teste"
+	@echo "... teste.o"
+	@echo "... teste.i"
+	@echo "... teste.s"
 .PHONY : help
 
 

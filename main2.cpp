@@ -197,7 +197,6 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 
 	cv::imshow("Drawing", drawing);
 
-	cout << camera_matrix[1][1];
 
 	return original;
 
