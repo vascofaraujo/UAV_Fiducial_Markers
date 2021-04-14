@@ -298,10 +298,11 @@ marker_size = 11
 #Santi
 #calib_path = 'D:/Desktop/IST/UAV/Visao/'
 #Vasco 
-calib_path = 'C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/'
-camera_matrix_original = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
-camera_matrix = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
-camera_distortion = np.loadtxt(calib_path+'Camera_Distortion_iPhone.txt', delimiter =',')
+#calib_path = 'C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/'
+calib_path_Linux = '/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/'
+camera_matrix_original = np.loadtxt(calib_path_Linux+'Camera_Matrix_iPhone.txt', delimiter =',')
+camera_matrix = np.loadtxt(calib_path_Linux+'Camera_Matrix_iPhone.txt', delimiter =',')
+camera_distortion = np.loadtxt(calib_path_Linux+'Camera_Distortion_iPhone.txt', delimiter =',')
 
 
 font = cv.FONT_HERSHEY_SIMPLEX
@@ -341,7 +342,7 @@ found = []
 
 #parameters initialization
 #img = img_markers[0]
-cap = cv.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/C_fast_short.MOV")
+cap = cv.VideoCapture("/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/New_Images/C_fast_short.MOV")
 suc, img = cap.read()
 scale_percent = 150
 width = int(img.shape[1] * scale_percent / 100)
@@ -382,6 +383,7 @@ while True:
 
     img = cv.resize(img, dim)
 
+    """
     if flagFound > 0:
         x = bbox[0]
         y = bbox[1]
@@ -391,7 +393,7 @@ while True:
         mask = np.full((img.shape[0], img.shape[1]), 0, dtype=np.uint8)
         cv.rectangle(mask, (x-w, y-h), (x+2*w, y+2*h), 255, -1)
         img = cv.bitwise_and(img, img, mask=mask)
-        
+    """      
         
     if countFrame % 10 == 0 or flagFound > 0:
         img, drawing, flagFound, bbox = computeMarker(img, flagFound, bbox, camera_matrix)

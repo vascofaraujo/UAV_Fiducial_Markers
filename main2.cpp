@@ -1,4 +1,4 @@
-#include "opencv2\opencv.hpp"
+#include "opencv2/opencv.hpp"
 using namespace cv;
 
 #include <math.h>
@@ -205,10 +205,10 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original)
 
 
 
-void main()
+int main()
 {
 	//VideoCapture cap(0);
-	VideoCapture cap("C:/totalcmd/IST/UAV-ART/UAV_Fiducial_Markers/New_Images/C_fast.MOV");
+	VideoCapture cap("/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/New_Images/C_fast.MOV");
 	cv::Mat img, img_original;
 	cv::Size sz = img.size();
 	int imageWidth = sz.width;
@@ -239,4 +239,5 @@ void main()
 			break;
 		}
 	}
+	return 0;
 }
