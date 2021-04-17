@@ -60,39 +60,39 @@ CMAKE_SOURCE_DIR = /home/vasco/Desktop/CODE/UAV_Fiducial_Markers
 CMAKE_BINARY_DIR = /home/vasco/Desktop/CODE/UAV_Fiducial_Markers
 
 #=============================================================================
-# Target rules for target CMakeFiles/teste.dir
+# Target rules for target CMakeFiles/subCpp.dir
 
 # All Build rule for target.
-CMakeFiles/teste.dir/all:
-	$(MAKE) -f CMakeFiles/teste.dir/build.make CMakeFiles/teste.dir/depend
-	$(MAKE) -f CMakeFiles/teste.dir/build.make CMakeFiles/teste.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles --progress-num=1,2 "Built target teste"
-.PHONY : CMakeFiles/teste.dir/all
+CMakeFiles/subCpp.dir/all:
+	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/depend
+	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles --progress-num=1,2 "Built target subCpp"
+.PHONY : CMakeFiles/subCpp.dir/all
 
 # Include target in all.
-all: CMakeFiles/teste.dir/all
+all: CMakeFiles/subCpp.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/teste.dir/rule: cmake_check_build_system
+CMakeFiles/subCpp.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/teste.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/subCpp.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles 0
-.PHONY : CMakeFiles/teste.dir/rule
+.PHONY : CMakeFiles/subCpp.dir/rule
 
 # Convenience name for target.
-teste: CMakeFiles/teste.dir/rule
+subCpp: CMakeFiles/subCpp.dir/rule
 
-.PHONY : teste
-
-# clean rule for target.
-CMakeFiles/teste.dir/clean:
-	$(MAKE) -f CMakeFiles/teste.dir/build.make CMakeFiles/teste.dir/clean
-.PHONY : CMakeFiles/teste.dir/clean
+.PHONY : subCpp
 
 # clean rule for target.
-clean: CMakeFiles/teste.dir/clean
+CMakeFiles/subCpp.dir/clean:
+	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/clean
+.PHONY : CMakeFiles/subCpp.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/subCpp.dir/clean
 
 .PHONY : clean
 
