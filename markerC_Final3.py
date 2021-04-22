@@ -383,7 +383,7 @@ while True:
 
     img = cv.resize(img, dim)
 
-    """
+    
     if flagFound > 0:
         x = bbox[0]
         y = bbox[1]
@@ -393,7 +393,7 @@ while True:
         mask = np.full((img.shape[0], img.shape[1]), 0, dtype=np.uint8)
         cv.rectangle(mask, (x-w, y-h), (x+2*w, y+2*h), 255, -1)
         img = cv.bitwise_and(img, img, mask=mask)
-    """      
+      
         
     if countFrame % 10 == 0 or flagFound > 0:
         img, drawing, flagFound, bbox = computeMarker(img, flagFound, bbox, camera_matrix)
