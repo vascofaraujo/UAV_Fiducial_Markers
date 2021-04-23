@@ -7,6 +7,8 @@ using namespace cv;
 #include <sys/stat.h>
 #include <chrono>
 using namespace std;
+#include <fcntl.h> 
+#include <unistd.h>  
 
 union pipe
 {
@@ -18,9 +20,9 @@ union pipe
 int main(){
     // Reads in the raw data
     //OPEN FILE PIPE1
-    IPC_FIFO_NAME = "pipe1"
-    fifo = fopen( IPC_FIFO_NAME , O_RDONLY );
-    out << "hello from cpp";
+    FILE *fifo;
+    fifo = fopen( "pipe1" , O_RDONLY );
+    cout << "hello from cpp";
     fread(&raw.image, 1, sizeof(raw.data), fifo);
     Mat image;
     // Rebuild raw data to cv::Mat

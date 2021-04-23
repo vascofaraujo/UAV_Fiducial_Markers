@@ -111,44 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named subCpp
+# Target rules for targets named alt1
 
 # Build rule for target.
-subCpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 subCpp
-.PHONY : subCpp
+alt1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 alt1
+.PHONY : alt1
 
 # fast build rule for target.
-subCpp/fast:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/build
-.PHONY : subCpp/fast
+alt1/fast:
+	$(MAKE) -f CMakeFiles/alt1.dir/build.make CMakeFiles/alt1.dir/build
+.PHONY : alt1/fast
 
-subCpp.o: subCpp.cpp.o
+alt1_cpp.o: alt1_cpp.cpp.o
 
-.PHONY : subCpp.o
+.PHONY : alt1_cpp.o
 
 # target to build an object file
-subCpp.cpp.o:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/subCpp.cpp.o
-.PHONY : subCpp.cpp.o
+alt1_cpp.cpp.o:
+	$(MAKE) -f CMakeFiles/alt1.dir/build.make CMakeFiles/alt1.dir/alt1_cpp.cpp.o
+.PHONY : alt1_cpp.cpp.o
 
-subCpp.i: subCpp.cpp.i
+alt1_cpp.i: alt1_cpp.cpp.i
 
-.PHONY : subCpp.i
+.PHONY : alt1_cpp.i
 
 # target to preprocess a source file
-subCpp.cpp.i:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/subCpp.cpp.i
-.PHONY : subCpp.cpp.i
+alt1_cpp.cpp.i:
+	$(MAKE) -f CMakeFiles/alt1.dir/build.make CMakeFiles/alt1.dir/alt1_cpp.cpp.i
+.PHONY : alt1_cpp.cpp.i
 
-subCpp.s: subCpp.cpp.s
+alt1_cpp.s: alt1_cpp.cpp.s
 
-.PHONY : subCpp.s
+.PHONY : alt1_cpp.s
 
 # target to generate assembly for a file
-subCpp.cpp.s:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/subCpp.cpp.s
-.PHONY : subCpp.cpp.s
+alt1_cpp.cpp.s:
+	$(MAKE) -f CMakeFiles/alt1.dir/build.make CMakeFiles/alt1.dir/alt1_cpp.cpp.s
+.PHONY : alt1_cpp.cpp.s
 
 # Help Target
 help:
@@ -158,10 +158,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... subCpp"
-	@echo "... subCpp.o"
-	@echo "... subCpp.i"
-	@echo "... subCpp.s"
+	@echo "... alt1"
+	@echo "... alt1_cpp.o"
+	@echo "... alt1_cpp.i"
+	@echo "... alt1_cpp.s"
 .PHONY : help
 
 

@@ -60,39 +60,39 @@ CMAKE_SOURCE_DIR = /home/vasco/Desktop/CODE/UAV_Fiducial_Markers
 CMAKE_BINARY_DIR = /home/vasco/Desktop/CODE/UAV_Fiducial_Markers
 
 #=============================================================================
-# Target rules for target CMakeFiles/subCpp.dir
+# Target rules for target CMakeFiles/alt1.dir
 
 # All Build rule for target.
-CMakeFiles/subCpp.dir/all:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/depend
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles --progress-num=1,2 "Built target subCpp"
-.PHONY : CMakeFiles/subCpp.dir/all
+CMakeFiles/alt1.dir/all:
+	$(MAKE) -f CMakeFiles/alt1.dir/build.make CMakeFiles/alt1.dir/depend
+	$(MAKE) -f CMakeFiles/alt1.dir/build.make CMakeFiles/alt1.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles --progress-num=1,2 "Built target alt1"
+.PHONY : CMakeFiles/alt1.dir/all
 
 # Include target in all.
-all: CMakeFiles/subCpp.dir/all
+all: CMakeFiles/alt1.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/subCpp.dir/rule: cmake_check_build_system
+CMakeFiles/alt1.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/subCpp.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/alt1.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles 0
-.PHONY : CMakeFiles/subCpp.dir/rule
+.PHONY : CMakeFiles/alt1.dir/rule
 
 # Convenience name for target.
-subCpp: CMakeFiles/subCpp.dir/rule
+alt1: CMakeFiles/alt1.dir/rule
 
-.PHONY : subCpp
-
-# clean rule for target.
-CMakeFiles/subCpp.dir/clean:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/clean
-.PHONY : CMakeFiles/subCpp.dir/clean
+.PHONY : alt1
 
 # clean rule for target.
-clean: CMakeFiles/subCpp.dir/clean
+CMakeFiles/alt1.dir/clean:
+	$(MAKE) -f CMakeFiles/alt1.dir/build.make CMakeFiles/alt1.dir/clean
+.PHONY : CMakeFiles/alt1.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/alt1.dir/clean
 
 .PHONY : clean
 
