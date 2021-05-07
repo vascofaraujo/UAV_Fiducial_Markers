@@ -229,6 +229,8 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original, cv::Mat cameraMatrix, cv::
 		//std::ofstream outfile;
 		//outfile.open("D:/Desktop/IST/UAV/Visao/Aruco/relatorio/ResultsS1bm1920.txt", std::ios_base::app);//std::ios_base::app
 		//outfile << float(DIST) << "\n";
+
+		
 	}
 	
 	
