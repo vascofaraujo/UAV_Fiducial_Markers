@@ -2,6 +2,7 @@ import os
 import sys
 import binascii
 import struct
+import re
 
 
 FIFO = 'myfifo'
@@ -20,8 +21,8 @@ while True:
 			print(line)
 			info = line.strip().strip('\x00')
 			str(info)
-			#print(info)
-			#print(type(info))
+
+			info = re.sub('[^0-9.]+', '', info)
 
 			if not info:
 				print("Empty Line")
@@ -30,5 +31,4 @@ while True:
 			num = float(info)
 			print("number read in Python: ")
 			print(num)
-			#print(type(num))
 			print("---END OF CYCLE---")

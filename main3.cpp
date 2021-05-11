@@ -267,6 +267,8 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original, cv::Mat cameraMatrix, cv::
 		std::string dist_str = std::to_string(Dist);
 		std::vector<char> dist_bytes(dist_str.begin(), dist_str.end());
 		dist_bytes.push_back('\n');
+		dist_bytes.push_back('\0');
+
 		char *ptr = &dist_bytes[0];
 
 		write(pipefile, ptr, sizeof(dist_bytes));
@@ -339,7 +341,6 @@ int main()
 
 		cv::imshow("Window", img);
 
-		cv::waitKey(0);
 
 		if (waitKey(1) == 27)
 		{
