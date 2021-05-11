@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main3.cpp" "/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles/main.dir/main3.cpp.o"
+  "/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main3.cpp" "/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles/main3.dir/main3.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

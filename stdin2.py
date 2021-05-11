@@ -21,7 +21,7 @@ def read():
         
     with open("filename", "a") as myfile:
         myfile.write(str(stdout))
-        myfile.write("hellout")
+        myfile.write("aaaaaaaaaa")
 
     #file2write.write(str(stdout))
     #file2write.write("hellout")

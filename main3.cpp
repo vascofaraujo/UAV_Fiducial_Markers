@@ -1,6 +1,8 @@
-#define _USE_MATH_DEFINES 
-#include <cmath>
-
+/*
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 #include "opencv2\opencv.hpp"
 using namespace cv;
 
@@ -9,6 +11,38 @@ using namespace cv;
 
 #include <iostream>
 using namespace std;
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <vector>
+#include <sys/stat.h> 
+#include <cstdlib>
+#include <stdio.h>
+
+#define _USE_MATH_DEFINES 
+#include <cmath>
+*/
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include "opencv2/opencv.hpp"
+using namespace cv;
+#include <cstdio>
+#include <thread>
+
+#include <sys/stat.h>
+#include <chrono>
+using namespace std;
+
+#define _USE_MATH_DEFINES 
+#include <cmath>
+#include <unistd.h>
+#include <fcntl.h>
+#include <vector>
+#include <sys/stat.h> 
+#include <cstdlib>
 
 //float camera_matrix[3][3] = { {1.57931456e+03, 0.00000000e+00, 7.37574015e+02},
 //								{0.00000000e+00, 1.58393379e+03, 9.31342862e+02},
@@ -130,7 +164,7 @@ std::vector< std::vector< Point2f > > match_warped(std::vector< std::vector< Poi
 
 
 
-cv::Mat compute_marker(cv::Mat img, cv::Mat original, cv::Mat cameraMatrix, cv::Mat distortionMatrix, Mat objPoints)
+cv::Mat compute_marker(cv::Mat img, cv::Mat original, cv::Mat cameraMatrix, cv::Mat distortionMatrix, Mat objPoints, int pipefile)
 {
 	cv::Mat threshImage, warped;
 	std::vector<std::vector<cv::Point> > contours;
@@ -221,7 +255,7 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original, cv::Mat cameraMatrix, cv::
 		std::cout << tVec << "\n";
 		double Dist = cv::norm(tVec);
 		std::string coord_str = "X:" + std::to_string(tVec.at<double>(0)) + "  " + "Y: " + std::to_string(tVec.at<double>(1)) + "  " + "Z: " + std::to_string(tVec.at<double>(2)) + "\n";
-		std::string dist_str = "Distance:" + std::to_string(Dist);
+		//std::string dist_str = "Distance:" + std::to_string(Dist);
 		
 		//std::cout << "TVEC" << tVec << "\n";
 		//std::cout << "DISTANCE:" << DIST << "\n";
@@ -230,7 +264,13 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original, cv::Mat cameraMatrix, cv::
 		//outfile.open("D:/Desktop/IST/UAV/Visao/Aruco/relatorio/ResultsS1bm1920.txt", std::ios_base::app);//std::ios_base::app
 		//outfile << float(DIST) << "\n";
 
-		
+		std::string dist_str = std::to_string(Dist);
+		std::vector<char> dist_bytes(dist_str.begin(), dist_str.end());
+		dist_bytes.push_back('\n');
+		char *ptr = &dist_bytes[0];
+
+		write(pipefile, ptr, sizeof(dist_bytes));
+
 	}
 	
 	
@@ -244,11 +284,21 @@ cv::Mat compute_marker(cv::Mat img, cv::Mat original, cv::Mat cameraMatrix, cv::
 
 
 
-void main()
+int main()
 {
+	int pipefile;
+
+	if ((pipefile = open("myfifo", O_WRONLY)) < 0) {
+		perror("open");
+		exit(-1);
+	}
+
+
+
+
 	//VideoCapture cap(0);
-	VideoCapture cap("D:/Desktop/IST/UAV/Visao/Godot/markerC_5h_godot.mp4");
-	//VideoCapture cap("D:/Desktop/Python/UAV_markers_test/New_Images/C_fast_short.MOV");
+	//VideoCapture cap("D:/Desktop/IST/UAV/Visao/Godot/markerC_5h_godot.mp4");
+	VideoCapture cap("/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/New_Images/C_fast.MOV");
 	cv::Mat img, img_original;
 	cap.read(img);
 	cv::Size sz = img.size();
@@ -285,7 +335,7 @@ void main()
 		img_original = img;
 		cvtColor(img, img, COLOR_BGR2GRAY);
 		
-		img = compute_marker(img, img_original, cameraMatrix, distortionMatrix, objPoints);
+		img = compute_marker(img, img_original, cameraMatrix, distortionMatrix, objPoints, pipefile);
 
 		cv::imshow("Window", img);
 
@@ -297,4 +347,11 @@ void main()
 			break;
 		}
 	}
+
+	if (close(pipefile) < 0) {
+		perror("close");
+		exit(-1);
+	}
+
+	return 0;
 }

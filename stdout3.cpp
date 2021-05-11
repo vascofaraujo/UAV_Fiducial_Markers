@@ -3,6 +3,8 @@
 #include <fcntl.h>
 #include <vector>
 #include <sys/stat.h> 
+#include <cstdlib>
+#include <stdio.h>
 
 using namespace std;
 
@@ -23,7 +25,7 @@ std::cout << "Opening c++ program " << std::endl;
 
 float distancia = 10.249;
 
-std::string dist_str = to_string(distancia);
+std::string dist_str = std::to_string(distancia);
 std::vector<char> dist_bytes(dist_str.begin(), dist_str.end());
 dist_bytes.push_back('\n');
 //dist_bytes.push_back('\0');

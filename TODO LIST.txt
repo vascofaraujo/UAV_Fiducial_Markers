@@ -1,7 +1,6 @@
 TODO LIST:
  
-1) dynamic resizing
-2) solve skip frames
-3) check distances
+1) Vasco: tempo de processamento markerC vs Aruco
+2) Snatio: detection rate markerC vs Aruco
 
-yaw
+a pensar... -> testes de robustez: ilumação, blur, oclusão, etc

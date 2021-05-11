@@ -111,6 +111,7 @@ subCpp: /usr/local/lib/libopencv_line_descriptor.so.4.5.2
 subCpp: /usr/local/lib/libopencv_surface_matching.so.4.5.2
 subCpp: /usr/local/lib/libopencv_dpm.so.4.5.2
 subCpp: /usr/local/lib/libopencv_mcc.so.4.5.2
+subCpp: /usr/local/lib/libopencv_barcode.so.4.5.2
 subCpp: /usr/local/lib/libopencv_freetype.so.4.5.2
 subCpp: /usr/local/lib/libopencv_structured_light.so.4.5.2
 subCpp: /usr/local/lib/libopencv_hfs.so.4.5.2

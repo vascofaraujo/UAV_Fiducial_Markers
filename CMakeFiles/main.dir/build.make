@@ -57,38 +57,38 @@ include CMakeFiles/main.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/main.dir/flags.make
 
-CMakeFiles/main.dir/main2.cpp.o: CMakeFiles/main.dir/flags.make
-CMakeFiles/main.dir/main2.cpp.o: main2.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/main.dir/main2.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/main2.cpp.o -c /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main2.cpp
+CMakeFiles/main.dir/main3.cpp.o: CMakeFiles/main.dir/flags.make
+CMakeFiles/main.dir/main3.cpp.o: main3.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/main.dir/main3.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/main.dir/main3.cpp.o -c /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main3.cpp
 
-CMakeFiles/main.dir/main2.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/main2.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main2.cpp > CMakeFiles/main.dir/main2.cpp.i
+CMakeFiles/main.dir/main3.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.dir/main3.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main3.cpp > CMakeFiles/main.dir/main3.cpp.i
 
-CMakeFiles/main.dir/main2.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/main2.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main2.cpp -o CMakeFiles/main.dir/main2.cpp.s
+CMakeFiles/main.dir/main3.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.dir/main3.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/vasco/Desktop/CODE/UAV_Fiducial_Markers/main3.cpp -o CMakeFiles/main.dir/main3.cpp.s
 
-CMakeFiles/main.dir/main2.cpp.o.requires:
+CMakeFiles/main.dir/main3.cpp.o.requires:
 
-.PHONY : CMakeFiles/main.dir/main2.cpp.o.requires
+.PHONY : CMakeFiles/main.dir/main3.cpp.o.requires
 
-CMakeFiles/main.dir/main2.cpp.o.provides: CMakeFiles/main.dir/main2.cpp.o.requires
-	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main2.cpp.o.provides.build
-.PHONY : CMakeFiles/main.dir/main2.cpp.o.provides
+CMakeFiles/main.dir/main3.cpp.o.provides: CMakeFiles/main.dir/main3.cpp.o.requires
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main3.cpp.o.provides.build
+.PHONY : CMakeFiles/main.dir/main3.cpp.o.provides
 
-CMakeFiles/main.dir/main2.cpp.o.provides.build: CMakeFiles/main.dir/main2.cpp.o
+CMakeFiles/main.dir/main3.cpp.o.provides.build: CMakeFiles/main.dir/main3.cpp.o
 
 
 # Object files for target main
 main_OBJECTS = \
-"CMakeFiles/main.dir/main2.cpp.o"
+"CMakeFiles/main.dir/main3.cpp.o"
 
 # External object files for target main
 main_EXTERNAL_OBJECTS =
 
-main: CMakeFiles/main.dir/main2.cpp.o
+main: CMakeFiles/main.dir/main3.cpp.o
 main: CMakeFiles/main.dir/build.make
 main: /usr/local/lib/libopencv_stitching.so.4.5.2
 main: /usr/local/lib/libopencv_gapi.so.4.5.2
@@ -111,6 +111,7 @@ main: /usr/local/lib/libopencv_line_descriptor.so.4.5.2
 main: /usr/local/lib/libopencv_surface_matching.so.4.5.2
 main: /usr/local/lib/libopencv_dpm.so.4.5.2
 main: /usr/local/lib/libopencv_mcc.so.4.5.2
+main: /usr/local/lib/libopencv_barcode.so.4.5.2
 main: /usr/local/lib/libopencv_freetype.so.4.5.2
 main: /usr/local/lib/libopencv_structured_light.so.4.5.2
 main: /usr/local/lib/libopencv_hfs.so.4.5.2
@@ -151,7 +152,7 @@ CMakeFiles/main.dir/build: main
 
 .PHONY : CMakeFiles/main.dir/build
 
-CMakeFiles/main.dir/requires: CMakeFiles/main.dir/main2.cpp.o.requires
+CMakeFiles/main.dir/requires: CMakeFiles/main.dir/main3.cpp.o.requires
 
 .PHONY : CMakeFiles/main.dir/requires
 

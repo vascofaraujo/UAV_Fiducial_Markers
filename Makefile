@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/vasco/Desktop/CODE/UAV_Fiducial_Markers
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,44 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named subCpp
+# Target rules for targets named main
 
 # Build rule for target.
-subCpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 subCpp
-.PHONY : subCpp
+main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 main
+.PHONY : main
 
 # fast build rule for target.
-subCpp/fast:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/build
-.PHONY : subCpp/fast
+main/fast:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
+.PHONY : main/fast
 
-subCpp.o: subCpp.cpp.o
+main3.o: main3.cpp.o
 
-.PHONY : subCpp.o
+.PHONY : main3.o
 
 # target to build an object file
-subCpp.cpp.o:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/subCpp.cpp.o
-.PHONY : subCpp.cpp.o
+main3.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main3.cpp.o
+.PHONY : main3.cpp.o
 
-subCpp.i: subCpp.cpp.i
+main3.i: main3.cpp.i
 
-.PHONY : subCpp.i
+.PHONY : main3.i
 
 # target to preprocess a source file
-subCpp.cpp.i:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/subCpp.cpp.i
-.PHONY : subCpp.cpp.i
+main3.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main3.cpp.i
+.PHONY : main3.cpp.i
 
-subCpp.s: subCpp.cpp.s
+main3.s: main3.cpp.s
 
-.PHONY : subCpp.s
+.PHONY : main3.s
 
 # target to generate assembly for a file
-subCpp.cpp.s:
-	$(MAKE) -f CMakeFiles/subCpp.dir/build.make CMakeFiles/subCpp.dir/subCpp.cpp.s
-.PHONY : subCpp.cpp.s
+main3.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/main3.cpp.s
+.PHONY : main3.cpp.s
 
 # Help Target
 help:
@@ -156,12 +156,12 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... subCpp"
-	@echo "... subCpp.o"
-	@echo "... subCpp.i"
-	@echo "... subCpp.s"
+	@echo "... edit_cache"
+	@echo "... main"
+	@echo "... main3.o"
+	@echo "... main3.i"
+	@echo "... main3.s"
 .PHONY : help
 
 
