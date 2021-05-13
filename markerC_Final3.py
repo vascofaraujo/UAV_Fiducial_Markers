@@ -8,6 +8,7 @@ from operator import itemgetter, attrgetter
 import PIL
 import timeit
 import datetime
+import time
 
 def order_points(pts):
     pts = np.array(pts)
@@ -342,7 +343,7 @@ found = []
 
 #parameters initialization
 #img = img_markers[0]
-cap = cv.VideoCapture("/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/New_Images/C_fast_short.MOV")
+cap = cv.VideoCapture("/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/New_Images/C_fast.MOV")
 suc, img = cap.read()
 scale_percent = 150
 width = int(img.shape[1] * scale_percent / 100)
@@ -370,12 +371,16 @@ camera_matrix[0][0] = camera_matrix_original[0][0] * scale_camera
 camera_matrix[0][2] = camera_matrix_original[0][2] * scale_camera
 camera_matrix[1][1] = camera_matrix_original[1][1] * scale_camera
 camera_matrix[1][2] = camera_matrix_original[1][2] * scale_camera
+
+start = time.time()
 countFrame = 0
+
 while True:
     sucess, img = cap.read()
     if not(sucess):
         break
     countFrame = countFrame + 1
+    
         
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
@@ -408,7 +413,13 @@ while True:
     if cv.waitKey(1) & 0xFF == ord('q'):
         break
 
+end = time.time()
+seconds = end - start
+fps  = countFrame / seconds
+
 writer.release()
+
+print("FPS: {}".format(fps))
 
 if data:
     plt.figure(figsize=(16,9))

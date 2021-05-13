@@ -328,10 +328,14 @@ int main()
 
 
 
+	int numframes = 0;
+	time_t start, end;
+	time(&start);
 	
 	while (cap.read(img))
 	{
-		
+		numframes = numframes+1;
+
 		//cv::resize(img, img, cv::Size(img.cols * 1.5, img.rows * 1.5), 0, 0, cv::INTER_LINEAR);
 
 		img_original = img;
@@ -348,6 +352,11 @@ int main()
 			break;
 		}
 	}
+	time(&end);
+
+	double seconds = difftime (end, start);
+	double fps  = numframes / seconds;
+	cout << "FPS: " << fps;
 
 	if (close(pipefile) < 0) {
 		perror("close");

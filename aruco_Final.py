@@ -3,6 +3,8 @@ import numpy as np
 import cv2.aruco as aruco
 import math
 import matplotlib.pyplot as plt
+import time
+
 
 
 
@@ -38,9 +40,9 @@ marker_size = 11 #cm
 data = []
 Save = False
 
-calib_path = 'markers/'
-camera_matrix = np.loadtxt(calib_path+'Camera_Matrix_iPhone.txt', delimiter =',')
-camera_distortion = np.loadtxt(calib_path+'Camera_Distortion_iPhone.txt', delimiter =',')
+calib_path_Linux = '/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/'
+camera_matrix = np.loadtxt(calib_path_Linux+'Camera_Matrix_iPhone.txt', delimiter =',')
+camera_distortion = np.loadtxt(calib_path_Linux+'Camera_Distortion_iPhone.txt', delimiter =',')
 
 DICTNAME = aruco.DICT_4X4_50 #REPLACE HERE
 aruco_dict = aruco.Dictionary_get(DICTNAME)
@@ -52,7 +54,7 @@ R_Flip[1,1] = -1.0
 R_Flip[2,2] = -1.0
 
 font = cv2.FONT_HERSHEY_SIMPLEX
-cap = cv2.VideoCapture("C:/totalcmd/IST/UAV-ART/markers/New_Images/AR_video_fast.mp4")
+cap = cv2.VideoCapture("/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/New_Images/AR_fast.MOV")
 
 scale_percent = 150
 scale_camera = scale_percent / 100
@@ -60,12 +62,15 @@ camera_matrix[0][0] = camera_matrix[0][0] * scale_camera
 camera_matrix[0][2] = camera_matrix[0][2] * scale_camera
 camera_matrix[1][1] = camera_matrix[1][1] * scale_camera
 camera_matrix[1][2] = camera_matrix[1][2] * scale_camera
+
+start = time.time()
+num_frames = 0
 while True:
     sucess, frame = cap.read()
     if not(sucess):
         break
   
-    
+    num_frames = num_frames +1
     width = int(frame.shape[1] * scale_percent / 100)
     height = int(frame.shape[0] * scale_percent / 100)
     dim = (width, height)
@@ -111,6 +116,12 @@ while True:
         cap.release()
         cv2.destroyAllWindows() 
         break
+
+end = time.time()
+seconds = end - start
+fps  = num_frames / seconds
+
+print("FPS: {}".format(fps))
 
 if data:
     plt.plot(data)
