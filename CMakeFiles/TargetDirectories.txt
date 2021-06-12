@@ -1,3 +1,0 @@
-/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles/rebuild_cache.dir
-/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles/edit_cache.dir
-/home/vasco/Desktop/CODE/UAV_Fiducial_Markers/CMakeFiles/main.dir

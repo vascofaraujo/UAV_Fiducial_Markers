@@ -1,6 +1,0 @@
-﻿  hello.cpp
-C:\totalcmd\IST\UAV-ART\UAV_Fiducial_Markers\hello.cpp(3,10): fatal error C1083: Não é possível abrir arquivo incluir: 'opencv2/opencv.hpp': No such file or directory
-  main.cpp
-C:\totalcmd\IST\UAV-ART\UAV_Fiducial_Markers\main.cpp(1,10): fatal error C1083: Não é possível abrir arquivo incluir: 'opencv2\opencv.hpp': No such file or directory
-  CMakeCXXCompilerId.cpp
-  Gerando Código...

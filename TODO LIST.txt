@@ -1,6 +1,0 @@
-TODO LIST:
- 
-1) Vasco: tempo de processamento markerC vs Aruco
-2) Snatio: detection rate markerC vs Aruco
-
-a pensar... -> testes de robustez: ilumação, blur, oclusão, etc
